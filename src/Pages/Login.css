@@ -1,0 +1,194 @@
+/* General page container styling */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1B2828;
+    ;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Background circular patterns */
+  .login-page::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    top: 20%;
+    left: 10%;
+  }
+  
+  .login-page::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    top: 50%;
+    right: -10%;
+  }
+  
+  /* Login wrapper styling */
+  .login-wrapper {
+    z-index: 1;
+    padding: 40px;
+    text-align: center;
+    width: 35%;
+    position: relative;
+  }
+  
+  /* Brand styling */
+  .login-brand {
+    font-family: "Dancing Script", cursive;
+    color: #ffffff;
+    margin-bottom: 30px;
+    font-size: 56px;
+    font-weight:bold;
+  }
+  .spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Ensure it overlays everything */
+  }
+  /* Input container */
+  .login-input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #21312d;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+  }
+ /* Add this to your Login.css */
+
+/* Eye icon styles */
+.login-icon-eye {
+    position: absolute;
+    right: 10px; /* Adjust as needed */
+    cursor: pointer;
+    color: #ffffff;
+  }
+  
+  .login-icon-eye::before {
+    content: '\f06e'; /* Font Awesome Eye icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+  }
+  
+  .login-icon-eye.visible::before {
+    content: '\f070'; /* Font Awesome Eye Slash icon */
+  }
+  
+  
+  /* Input fields */
+  .login-input {
+    flex: 1;
+    padding: 10px;
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+    letter-spacing: 1px;
+  }
+  
+  .login-input::placeholder {
+    color: #b0b0b0;
+  }
+  
+  /* Submit button */
+  .login-submit {
+    width: 100%;
+    background-color: #ffffff;
+    color: #1a2b29;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-submit:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* Icons */
+  .login-icon {
+    color: #ffffff;
+    margin-right: 10px;
+  }
+  
+  .login-icon-user::before {
+    content: '\f007'; /* Font Awesome User icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+  }
+  
+  .login-icon-lock::before {
+    content: '\f023'; /* Font Awesome Lock icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+  }
+  
+  /* Enlarged image in the top-right corner */
+  .top-right-image {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 45%;  /* Increase the size */
+    height: auto;
+    z-index: 0;
+  }
+  
+  /* Enlarged bottom-left rings with consistent spacing */
+.bottom-left-rings {
+    position: absolute;
+    left: 5%;
+    z-index: 0;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    background: transparent;
+}
+
+/* First ring */
+.ring1 {
+    width: 500px;
+    height: 500px;
+    top: 0;
+    left: 0;
+    background-color: #151F1F;
+}
+
+/* Second ring with equal distance */
+.ring2 {
+    width: 400px;
+    height: 400px;
+    top: 50px;  /* Consistent spacing */
+    left: 50px;
+    background-color: #2B4040;
+}
+
+/* Third ring with equal distance */
+.ring3 {
+    width: 300px;
+    height: 300px;
+    top: 100px;  /* Consistent spacing */
+    left: 100px;
+    background-color: #1B2828;
+}

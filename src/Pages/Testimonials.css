@@ -1,0 +1,112 @@
+/* Page Styling */
+.testimonials-page {
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    text-align: left;
+  }
+  
+  /* Testimonial Item */
+  .testimonial-item {
+    width: 300px;
+    padding-bottom: 20px; /* Space for footer row */
+  }
+  
+  /* Speech Bubble */
+  .speech-bubble {
+    position: relative;
+    padding: 20px 15px;
+    background: #fff;
+    border-radius: 10px;
+    display: inline-block;
+    max-width: 300px;
+    margin-bottom: 20px;
+    border: none;
+  }
+  
+  /* Tail with Right-Angled Triangle */
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid #fff;
+    border-top: 40px solid transparent;
+    transform: rotate(180deg);
+    z-index: 0;
+  }
+  
+  /* Quote Icon */
+  .quote-icon {
+    font-size: 24px;
+    color: black;
+    margin-bottom: 10px;
+  }
+  
+  /* Testimonial Heading */
+  h5 {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.1rem;
+  }
+  
+  /* Testimonial Description */
+  p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  
+  /* Custom Dots */
+  .custom-dots {
+    display: flex !important;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .custom-dot {
+    width: 12px;
+    height: 12px;
+    background: #ddd;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .custom-dot.slick-active {
+    background: #007bff;
+  }
+  
+  /* Footer Row Styling */
+  .testimonial-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 10px; /* Adjust margin to add space between speech bubble and footer */
+  }
+  
+  /* Image Styling */
+  .testimonial-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+  }
+  
+  /* Name and Subname Styling */
+  .testimonial-name {
+    margin-left: 15px;
+  }
+  
+  .testimonial-name strong {
+    display: block;
+    color: #333;
+  }
+  
+  .testimonial-name p {
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+  

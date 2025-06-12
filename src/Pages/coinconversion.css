@@ -1,0 +1,302 @@
+/* CoinConversion CSS Styles with unique classnames */
+
+.coin-conversion__container {
+    padding-bottom: 40px;
+    position: relative;
+  }
+  
+  .coin-conversion__title {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  /* Add Button Styles */
+  .coin-conversion__add-btn {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 10px 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .coin-conversion__add-btn:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  }
+  
+  .coin-conversion__add-icon {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 8px;
+    line-height: 1;
+  }
+  
+  /* Modal Styles */
+  .coin-conversion__modal .modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .coin-conversion__modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px 20px;
+  }
+  
+  .coin-conversion__modal-header .modal-title {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .coin-conversion__modal-body {
+    padding: 20px;
+  }
+  
+  .coin-conversion__modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  /* Form Styles */
+  .coin-conversion__form {
+    margin-top: 10px;
+  }
+  
+  .coin-conversion__form-group {
+    margin-bottom: 20px;
+  }
+  
+  .coin-conversion__form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+  }
+  
+  .coin-conversion__input-coins,
+  .coin-conversion__input-rupees {
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out;
+  }
+  
+  .coin-conversion__input-coins:focus,
+  .coin-conversion__input-rupees:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  }
+  
+  /* Button Styles */
+  .coin-conversion__cancel-btn {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+  }
+  
+  .coin-conversion__cancel-btn:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
+  
+  .coin-conversion__submit-btn {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 10px 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+  
+  .coin-conversion__submit-btn:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  }
+  
+  .coin-conversion__submit-btn:focus,
+  .coin-conversion__submit-btn:active {
+    background-color: #0062cc;
+    border-color: #005cbf;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  }
+  
+  .coin-conversion__spinner {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+  }
+  
+  /* Table Card Styles */
+  .coin-conversion__table-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 40px;
+  }
+  
+  .coin-conversion__table-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    padding: 15px 20px;
+  }
+  
+  .coin-conversion__table-body {
+    padding: 0;
+  }
+  
+  /* Table Styles */
+  .coin-conversion__table {
+    margin-bottom: 0;
+  }
+  
+  .coin-conversion__table-head th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px;
+  }
+  
+  .coin-conversion__table-row {
+    transition: background-color 0.2s ease;
+  }
+  
+  .coin-conversion__table-row:hover {
+    background-color: #f2f7ff;
+  }
+  
+  .coin-conversion__table-cell-id,
+  .coin-conversion__table-cell-coins,
+  .coin-conversion__table-cell-rupees {
+    padding: 15px;
+    vertical-align: middle;
+  }
+  
+  .coin-conversion__table-cell-coins {
+    font-weight: 500;
+    color: #28a745;
+  }
+  
+  .coin-conversion__table-cell-rupees {
+    font-weight: 500;
+    color: #0d6efd;
+  }
+  
+  /* Loading Styles */
+  .coin-conversion__loading-container {
+    padding: 40px 0;
+  }
+  
+  .coin-conversion__loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    color: #007bff;
+  }
+  
+  /* Alert Styles */
+  .coin-conversion__alert-error,
+  .coin-conversion__alert-success,
+  .coin-conversion__no-data-alert {
+    animation: coin-conversion__fadein 0.5s;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+  
+  .coin-conversion__alert-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  
+  .coin-conversion__alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+  
+  .coin-conversion__no-data-alert {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Toast Styles */
+  .coin-conversion__toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+  }
+  
+  .coin-conversion__toast {
+    min-width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 6px;
+    overflow: hidden;
+    animation: coin-conversion__slidein 0.3s ease-out;
+  }
+  
+  .coin-conversion__toast-header {
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .coin-conversion__toast-body {
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+  }
+  
+  @keyframes coin-conversion__fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  
+  @keyframes coin-conversion__slidein {
+    from { transform: translateX(30px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .coin-conversion__table-card {
+      margin-bottom: 20px;
+    }
+    
+    .coin-conversion__table-cell-id,
+    .coin-conversion__table-cell-coins,
+    .coin-conversion__table-cell-rupees {
+      padding: 10px;
+    }
+    
+    .coin-conversion__toast-container {
+      bottom: 0;
+      right: 0;
+      left: 0;
+      width: 100%;
+    }
+    
+    .coin-conversion__toast {
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+  
+  @keyframes coin-conversion__fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  

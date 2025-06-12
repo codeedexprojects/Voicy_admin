@@ -1,0 +1,194 @@
+.content-holder {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 16px;
+    padding: 16px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+/* Sorting icon container */
+.sort-icon-container {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding-right: 10px;
+}
+
+
+.card-container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(212, 25, 25, 0.1);
+    padding: 15px;
+    background-color: #F9F9F9;
+    min-width: 280px;
+    max-width: 100%;
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+}
+
+
+
+/* Card header styling */
+.card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 500;
+    color: #323343;
+    ;
+}
+
+/* Filter icon holding container */
+.filter-icon-hold {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 16px;
+}
+
+.Rate-Id,
+.Time-Duration {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.pagination-div{
+    display: flex;
+    justify-content: center;
+}
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .card-container {
+        width: calc(50% - 16px);
+    }
+}
+
+@media (max-width: 400px) {
+    .card-container {
+        width: calc(100% - 16px);
+        margin-bottom: 16px;
+    }
+
+    .filter-icon-hold {
+        justify-content: center;
+        padding: 0 16px;
+    }
+
+    .content-holder {
+        justify-content: center;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 280px) {
+    .card-container {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 16px;
+    }
+
+    .filter-icon-hold {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .Rate-Id,
+    .Time-Duration {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-container strong {
+        font-size: 1.1rem;
+    }
+}
+
+
+.report-container {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .report-title {
+    color: #2c3e50;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  
+  .report-excel-btn {
+    background-color: #1d6f42;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    transition: transform 0.2s;
+  }
+  
+  .report-excel-btn:hover {
+    background-color: #165834;
+    transform: translateY(-2px);
+  }
+  
+  .report-metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    height: 100%;
+  }
+  
+  .report-metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .report-metric-card h5 {
+    color: #34495e;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .report-metric-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+  
+  .report-metric-trend {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  /* Card Accents */
+  .report-metric-card.report-sales { border-left: 4px solid #3498db; }
+  .report-metric-card.report-talk-time { border-left: 4px solid #e67e22; }
+  .report-metric-card.report-spending { border-left: 4px solid #2ecc71; }
+  .report-metric-card.report-earnings { border-left: 4px solid #9b59b6; }
+  .report-metric-card.report-duty { border-left: 4px solid #f1c40f; }
+  .report-metric-card.report-missed { border-left: 4px solid #e74c3c; }
+  
+  @media (max-width: 768px) {
+    .report-metric-value {
+      font-size: 1.8rem;
+    }
+    
+    .report-title {
+      font-size: 1.75rem;
+    }
+  }

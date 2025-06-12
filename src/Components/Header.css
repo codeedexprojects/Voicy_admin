@@ -1,0 +1,66 @@
+/* Header Navbar */
+.header-navbar {
+  background-color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #333;
+  transition: transform 0.3s ease-in-out;
+}
+
+
+
+/* Brand / Logo */
+.brand-container {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Soulmate Text Styling */
+.soulmate-text {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #002a14;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 1px;
+  transition: color 0.3s ease-in-out;
+}
+
+.soulmate-text:hover {
+  color: #006eff;
+}
+
+/* User Icon */
+.user-icon {
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease-in-out;
+}
+
+.user-icon:hover {
+  color: #006eff;
+}
+
+/* User Dropdown */
+.user-dropdown {
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-collapse {
+  justify-content: flex-end;
+}

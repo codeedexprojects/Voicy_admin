@@ -1,0 +1,52 @@
+.heading{
+    text-align: left;
+    color: black;
+    padding: 10px;
+}
+.formHeading{
+    text-align: start;
+}
+.buttonContainer{
+    display: flex;
+    flex-direction: row;
+    padding: 10px;  
+}
+.addexe{
+    background: #5065F6;
+color: white;
+border-radius: 10px;
+border: none;
+}
+.canexe{
+    background: #F5F5F5;
+color: #323343;
+border-radius: 10px;
+border: none;
+width: Fixed (282px)px;
+height: Hug (48px)px;
+padding: 12px 0px 0px 0px;
+gap: 10px;
+border-radius: 10px 0px 0px 0px;
+border: 1px 0px 0px 0px;
+opacity: 0px;
+
+}
+/* AddExecutive.css */
+.Toastify__toast--success {
+    background-color: #4CAF50;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+  }
+  
+  .Toastify__toast--error {
+    background-color: #f44336;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+  }
+  
+  .Toastify__progress-bar {
+    background: #ffffff;
+  }
+  

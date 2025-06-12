@@ -1,0 +1,14 @@
+.manager-card {
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+  .manager-card:hover {
+    transform: translateY(-5px);
+  }
+  .manager-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  

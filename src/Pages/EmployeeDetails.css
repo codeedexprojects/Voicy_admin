@@ -1,0 +1,146 @@
+.removeBtn{
+    display: flex;
+    justify-content: end;
+}
+.heading1{
+    font-weight: 700;
+}
+.employeePic{
+    width: 100px;
+    
+}
+.cardImg{
+    width: 30px;
+}
+.cardBody{
+    display: flex;
+    flex-wrap: wrap; 
+   align-items: center;
+}
+.cardTitle{
+    
+font-size: 18px;
+font-weight: 500;
+line-height: 26px;
+
+    
+}
+#form1{
+    background-color: white;
+}
+.MDBInput{
+    background-color: white;
+
+}
+.form-outline {
+    background-color: white !important;
+}
+  @media only screen and (max-width: 320px) {
+    .row2 {
+        flex-direction: column;
+      }
+    .cardBody {
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        width: auto;
+    }
+    .cardImg{
+        width: auto;
+    }
+    .employeePic{
+        width: 150px;
+        align-items: center;
+        
+    }
+    .removeBtn{
+        display: flex;
+        justify-content: center;
+    }
+    .cardImg {
+        width: 80px; 
+        height: auto;
+        margin-bottom: 10px; 
+    }
+    
+    .cardTitle {
+        font-size: 1rem; 
+    }
+    
+    h4 {
+        font-size: 1.2rem; 
+    }
+    .row3{
+        flex-direction: column; 
+    }
+
+}
+
+@media only screen and (max-width: 375px) {
+
+    .removeBtn{
+        display: flex;
+        justify-content: center;
+    }
+    .employeePic{
+        width: 150px;
+        align-items: center;
+        
+    }
+}
+
+@media only screen and (max-width: 390px) {
+
+    .removeBtn{
+        display: flex;
+        justify-content: center;
+    }
+    .employeePic{
+        width: 150px;
+        align-items: center;
+        
+    }
+}
+
+@media only screen and (max-width: 415px) {
+
+    .removeBtn{
+        display: flex;
+        justify-content: center;
+    }
+    .employeePic{
+        width: 150px;
+        align-items: center;
+        
+    }
+}
+#remove-employee-title{
+    font-size: 20px;
+    color: #323343;
+    font-weight: 200;
+}
+#remove-employee-description{
+    font-size: 24px;
+    font-weight: 500;
+    color: #323343;
+    text-align: center;
+}
+#cancelb {
+    background-color: #F5F5F5;
+    border-radius: 10px;
+    border: none;
+    color: #323343;
+    padding: 12px 30px; /* Increase padding for more height and width */
+    min-width: 150px;    /* Set a larger minimum width */
+    cursor: pointer;      /* Change cursor to pointer on hover */
+}
+
+#removeb {
+    background-color: #5065F6;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    padding: 12px 30px; /* Increase padding for more height and width */
+    min-width: 150px;    /* Set a larger minimum width */
+    cursor: pointer;      /* Change cursor to pointer on hover */
+}
