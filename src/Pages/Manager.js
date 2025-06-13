@@ -72,9 +72,9 @@ function Manager() {
 
   const handleAdd = async (newManager) => {
     try {
-      console.log("Sending data:", newManager); // Debugging output
+      console.log("Sending data:", newManager); 
       const response = await AddManager(newManager);
-      console.log("API Response:", response); // Debugging output
+      console.log("API Response:", response); 
       fetchManagerData();
       setShowAddModal(false);
     } catch (err) {
@@ -247,13 +247,13 @@ function AddManagerModal({ show, handleClose, handleAdd }) {
               onChange={handleChange}
             />
           </Form.Group>
-          <Form.Group>
+          {/* <Form.Group>
             <Form.Label>Role</Form.Label>
             <Form.Control as="select" name="role" onChange={handleChange}>
               <option value="manager_executive">Manager Executive</option>
               <option value="manager_user">Manager User</option>{" "}
             </Form.Control>
-          </Form.Group>
+          </Form.Group> */}
         </Form>
       </Modal.Body>
       <Modal.Footer>

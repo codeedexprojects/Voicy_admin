@@ -31,6 +31,7 @@ import ManageUserDetails from "./Pages/ManageUserDetails";
 import ManageUser from "./Pages/ManageUser";
 import Category from "./Pages/Category";
 import CoinConversion from "./Pages/CoinConversion";
+import Profile from "./Pages/Profile";
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -108,6 +109,16 @@ function App() {
                   />
                 }
               ></Route>
+              <Route
+                path="/admin-profile"
+                element={
+                  <ProtectedRoute
+                    element={<Profile />}
+                    requiredRole="superuser"
+                  />
+                }
+              ></Route>
+              
                <Route
                 path="/coinconversion"
                 element={
@@ -314,19 +325,50 @@ function App() {
                 element={
                   <ProtectedRoute
                     element={<ManageUser />}
-                    requiredRole="manager_user"
+                    requiredRole="manager_executive"
                   />
                 }
               ></Route>
+
+               <Route
+                path="/manager-profile"
+                element={
+                  <ProtectedRoute
+                    element={<Profile />}
+                    requiredRole="manager_executive"
+                  />
+                }
+              ></Route>
+              
               <Route
                 path="/manageuserdetails/:id/:user_id"
                 element={
                   <ProtectedRoute
                     element={<ManageUserDetails />}
-                    requiredRole="manager_user"
+                    requiredRole="manager_executive"
                   />
                 }
               ></Route>
+                <Route
+                path="/activities"
+                element={
+                  <ProtectedRoute
+                    element={<Activities />}
+                    requiredRole="manager_executive"
+                  />
+                }
+              ></Route>
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute
+                    element={<Report />}
+                    requiredRole="manager_executive"
+                  />
+                }
+              ></Route>
+
+               
 
               <Route path="*" element={<NotFound />} />
             </Routes>

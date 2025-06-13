@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table, Form, Button, Pagination
 } from 'react-bootstrap';
@@ -6,21 +6,31 @@ import { FaSearch, FaDownload } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useNavigate } from 'react-router-dom';
+import { getAccounts } from '../services/allApi';
 
 const UserAccount = () => {
   const [date, setDate] = useState(new Date());
-  const [cashType, setCashType] = useState('Credit');
   const [entries, setEntries] = useState(100);
   const [page, setPage] = useState(3);
   const navigate = useNavigate();
 
   const handlePageChange = (pageNumber) => setPage(pageNumber);
+const [accounts, setAccounts] =useState([])
 
-  const rows = [
-    { id: '534634614367', date: '27:07:2024', name: 'Anuranjith', account: 'Credit', paymentMethod: 'Gpay', amount: 1000, isDebit: false },
-    { id: '534634614367', date: '27:07:2024', name: 'Anuranjith', account: 'Debit', paymentMethod: 'Gpay', amount: 1000, isDebit: true },
-    // Add more rows as needed
-  ];
+useEffect(()=>{
+  const fetchAccounts=async () =>{
+    try {
+      const data=await getAccounts();
+      console.log('accounts',data);
+      setAccounts(data)
+  }
+  catch(err){
+    
+  }
+};
+fetchAccounts();
+}, [])
+
   const handleClick = () => {
     navigate('/payment');
   };
@@ -29,17 +39,7 @@ const UserAccount = () => {
       <h2 className="mb-4">Accounts</h2>
 
       <div className="d-flex align-items-start mb-3 gap-3">
-  {/* Cash Type Dropdown */}
-  <Form.Group controlId="cashSelect" className="col-md-2">
-    <Form.Label>Cash</Form.Label>
-    <Form.Select
-      value={cashType}
-      onChange={(e) => setCashType(e.target.value)}
-    >
-      <option value="Credit">Credit</option>
-      <option value="Debit">Debit</option>
-    </Form.Select>
-  </Form.Group>
+
 
   {/* Date Picker From */}
   <Form.Group controlId="datePickerFrom" className="col-md-2 d-flex flex-column">
@@ -90,7 +90,7 @@ const UserAccount = () => {
       <Form.Label>&nbsp;</Form.Label>
       <button         onClick={handleClick}
  style={{ whiteSpace: 'nowrap',background:'#5065F6',border:'none',borderRadius:'10px',padding:'5px',color:'white' }} variant="info" className="w-100">
-        <span style={{fontSize:'14px'}}>Payment Request</span>
+        <span style={{fontSize:'14px'}}>Executive Payment Request</span>
       </button>
     </Form.Group>
   </div>
@@ -128,27 +128,23 @@ const UserAccount = () => {
         <Table hover responsive="sm" className="request-table">
           <thead>
             <tr>
-              <th>Invoice ID</th>
+              <th>User ID</th>
               <th>Date</th>
-              <th>Name</th>
-              <th>Account</th>
-              <th>Payment Method</th>
-              <th>Amount</th>
+              <th>Coin Purchased</th>
+              <th>Purchased Price</th>
+              
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
+            {accounts.map((row, index) => (
               <tr key={index}>
-                <td>{row.id}</td>
-                <td>{row.date}</td>
-                <td>{row.name}</td>
-                <td className={row.isDebit ? 'text-danger' : 'text-success'}>
-                  {row.account}
+                <td>{row.user_id}</td>
+                <td>{row.purchase_date}</td>
+                <td>{row.coins_purchased}</td>
+                <td>
+                  {row.purchased_price}
                 </td>
-                <td>{row.paymentMethod}</td>
-                <td className={row.isDebit ? 'text-danger' : 'text-success'}>
-                  {row.amount.toFixed(2)}
-                </td>
+                
               </tr>
             ))}
           </tbody>

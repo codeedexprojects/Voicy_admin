@@ -243,7 +243,7 @@ const handleSubmit = async (e) => {
                   <option value="others">Others</option>
                 </select>
               </div>
-              <div className="my-3">
+              {/* <div className="my-3">
                 <label className="formHeading">Executive ID</label>
                 <MDBInput
                   name="executive_id"
@@ -251,7 +251,7 @@ const handleSubmit = async (e) => {
                   onChange={handleInputChange}
                   type="text"
                 />
-              </div>
+              </div> */}
               <div className="my-3">
                 <label className="formHeading">Manager</label>
                 <select

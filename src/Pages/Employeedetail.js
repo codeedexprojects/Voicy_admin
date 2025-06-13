@@ -868,6 +868,15 @@ function EmployeeDetails() {
                 value={user.name === id || user.id === undefined ? "" : user.id}
               />
             </div>
+             <div className="my-3">
+              <label className="formHeading">EXECUTIVE ID</label>
+              <MDBInput
+                id="form1"
+                type="text"
+                disabled
+                value={user.executive_id === null || user.executive_id === undefined ? "" : user.executive_id}
+              />
+            </div>
           </div>
           <div className="col-md-4 col-12">
             <div className="my-3">

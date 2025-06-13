@@ -1208,3 +1208,170 @@ export const getRedeemRequests = async () => {
     throw error;
   }
 };
+
+
+
+export const getAccounts = async () => {
+  try {
+    const method = "GET";
+    const url = `${BASE_URL}/api/user/purchase-history/`;
+    // Make the request using commonApi without request body or custom headers
+    const response = await commonApi(method, url);
+
+    // Check if the response is successful and data exists
+    if (response.status === 200 && response.data) {
+      return response.data; 
+    } else {
+      throw new Error("Failed to fetch accounts data");
+    }
+  } catch (error) {
+    console.error("Error fetching accounts data:", error.message);
+    console.log(error.data);
+    
+    throw error; 
+  }
+};
+
+
+
+
+
+export const getprofile = async (profile_id) => {
+  try {
+    const method = "GET";
+    const url = `${BASE_URL}/api/admin/update/${profile_id}/`;
+    const response = await commonApi(method, url);
+
+    if (response.status === 200 && response.data) {
+      return response.data; 
+    } else {
+      throw new Error("Failed to fetch profile data");
+    }
+  } catch (error) {
+    console.error("Error fetching profile data:", error.message);
+    console.log(error.data);
+    
+    throw error; 
+  }
+};
+
+
+
+
+
+
+export const editProfile = async (profile_id, profileData) => {
+  try {
+    const response = await axios.patch(`${BASE_URL}/api/admin/update/${profile_id}/`, {
+      name: profileData.name,
+      email: profileData.email,
+      mobile_number: profileData.mobile_number,
+    });
+     
+    if (response.status === 200) {
+      return response.data; // Return response.data instead of response
+    } else {
+      throw new Error("Failed to edit profile data");
+    }
+  } catch (error) {
+    console.error("Error editing profile data:", error.message);
+    throw error;
+  }
+};
+
+
+
+export const sendOtpForPasswordReset = async (mobile_number) => {
+  try {
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('mobile_number', mobile_number);
+
+    const response = await axios.post(`${BASE_URL}/api/password-reset/send-otp/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to send OTP");
+    }
+  } catch (error) {
+    console.error("Error sending OTP:", error.message);
+    throw error;
+  }
+};
+
+export const resetPasswordWithOtp = async ({ mobile_number, new_password, otp }) => {
+  try {
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('mobile_number', mobile_number);
+    formData.append('new_password', new_password);
+    formData.append('otp', otp);
+
+    const response = await axios.post(`${BASE_URL}/api/password-reset/verify-otp/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to reset password");
+    }
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    throw error;
+  }
+};
+
+// Alternative approach using URLSearchParams for application/x-www-form-urlencoded
+export const sendOtpForPasswordResetAlt = async (mobile_number) => {
+  try {
+    const params = new URLSearchParams();
+    params.append('mobile_number', mobile_number);
+
+    const response = await axios.post(`${BASE_URL}/api/password-reset/send-otp/`, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to send OTP");
+    }
+  } catch (error) {
+    console.error("Error sending OTP:", error.message);
+    throw error;
+  }
+};
+
+export const resetPasswordWithOtpAlt = async ({ mobile_number, new_password, otp }) => {
+  try {
+    const params = new URLSearchParams();
+    params.append('mobile_number', mobile_number);
+    params.append('new_password', new_password);
+    params.append('otp', otp);
+
+    const response = await axios.post(`${BASE_URL}/api/password-reset/verify-otp/`, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to reset password");
+    }
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    throw error;
+  }
+};
