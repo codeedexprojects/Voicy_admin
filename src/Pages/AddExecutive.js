@@ -14,6 +14,8 @@ function AddExecutive({ setShowExecutiveModal }) {
     mobile_number: "",
     place: "",
     profession: "",
+    account_number:"",
+    ifsc_code:"",
     gender: "",
     executive_id: "",
     email_id: "",
@@ -24,7 +26,7 @@ function AddExecutive({ setShowExecutiveModal }) {
     password: "",
     is_banned: false,
     is_suspended: false,
-    manager_executive: "", // Added manager_id to the state
+    manager_executive: "", 
   });
 
   const handleInputChange = (e) => {
@@ -47,11 +49,13 @@ const handleSubmit = async (e) => {
   const requiredFields = {
     name: "Executive Name",
     mobile_number: "Phone Number",
+    account_number: "Account number",
+    ifsc_code: "IFSC Code",
     email_id: "Email ID",
     password: "Password",
     gender: "Gender",
     status: "Status",
-    manager_executive: "Manager", // Required field
+    manager_executive: "Manager", 
   };
 
   const missingFields = Object.keys(requiredFields).filter(
@@ -76,9 +80,9 @@ const handleSubmit = async (e) => {
       manager_executive: Number(formData.manager_executive),
     };
 
-    console.log("Request payload:", payload);
-    console.log("API endpoint:", `${BASE_URL}/api/register-executive/`);
-    console.log("Token:", token ? "Present" : "Missing");
+    // console.log("Request payload:", payload);
+    // console.log("API endpoint:", `${BASE_URL}/api/register-executive/`);
+    // console.log("Token:", token ? "Present" : "Missing");
 
     const response = await fetch(`${BASE_URL}/api/register-executive/`, {
       method: "POST",
@@ -89,8 +93,8 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(payload),
     });
 
-    console.log("Response status:", response.status);
-    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+    // console.log("Response status:", response.status);
+    // console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
     // Always try to get response body (even for successful responses)
     let responseData;
@@ -102,16 +106,16 @@ const handleSubmit = async (e) => {
       responseData = await response.text();
     }
     
-    console.log("Response data:", responseData);
+    // console.log("Response data:", responseData);
 
     if (!response.ok) {
       // More detailed error logging
-      console.error("API Error Details:", {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData,
-        url: response.url
-      });
+      // console.error("API Error Details:", {
+      //   status: response.status,
+      //   statusText: response.statusText,
+      //   data: responseData,
+      //   url: response.url
+      // });
 
       // Handle different types of error responses
       let errorMessage = "Something went wrong. Please try again.";
@@ -131,18 +135,18 @@ const handleSubmit = async (e) => {
       return;
     }
 
-    console.log("Success response:", responseData);
+    // console.log("Success response:", responseData);
     toast.success("Executive added successfully!");
     setShowExecutiveModal(false);
     
   } catch (error) {
     // Enhanced error logging
-    console.error("Network/Fetch Error:", {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      cause: error.cause
-    });
+    // console.error("Network/Fetch Error:", {
+    //   message: error.message,
+    //   name: error.name,
+    //   stack: error.stack,
+    //   cause: error.cause
+    // });
     
     // Check if it's a network error vs parsing error
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -163,7 +167,7 @@ const handleSubmit = async (e) => {
         const data = await getAdmins();
         setAdmins(data);
       } catch (error) {
-        console.error("Error fetching admins:", error.message);
+        // console.error("Error fetching admins:", error.message);
       }
     };
 
@@ -214,6 +218,16 @@ const handleSubmit = async (e) => {
                   name="place"
                   required
                   value={formData.place}
+                  onChange={handleInputChange}
+                  type="text"
+                />
+              </div>
+                <div className="my-3">
+                <label className="formHeading">Account number</label>
+                <MDBInput
+                  name="account_number"
+                  required
+                  value={formData.account_number}
                   onChange={handleInputChange}
                   type="text"
                 />
@@ -301,6 +315,16 @@ const handleSubmit = async (e) => {
                 />
               </div>
               <div className="my-3">
+                <label className="formHeading">IFSC Code</label>
+                <MDBInput
+                  required
+                  name="ifsc_code"
+                  value={formData.ifsc_code}
+                  onChange={handleInputChange}
+                  type="text"
+                />
+              </div>
+              <div className="my-3">
                 <label className="formHeading">Skills</label>
                 <MDBInput
                   required
@@ -310,6 +334,7 @@ const handleSubmit = async (e) => {
                   type="text"
                 />
               </div>
+               
               <div className="my-3">
                 <label className="formHeading">Status</label>
                 <select

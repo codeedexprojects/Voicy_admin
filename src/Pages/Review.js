@@ -1,365 +1,422 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import SortIcon from '@mui/icons-material/Sort';
 import './Report.css';
-import { Pagination, Modal, Button } from 'react-bootstrap';
-import { useState,useEffect } from 'react';
-import Popover from '@mui/material/Popover';
-import { MDBCard, MDBCardBody } from 'mdb-react-ui-kit';
+import { useState, useEffect } from 'react';
 import { getTotalRating } from '../services/allApi';
-
+import * as XLSX from 'xlsx';
 
 export default function Review() {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [expandedModalOpen, setExpandedModalOpen] = useState(false);
-    const [selectedMessage, setSelectedMessage] = useState('');
     const [ratings, setRatings] = useState([]);
-    const [showFilterModal, setShowFilterModal] = useState(false);
-    const [filterStars, setFilterStars] = useState(null);
+    const [showFilter, setShowFilter] = useState(false);
+    const [filterStars, setFilterStars] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 12;
-    const handleFilterBtnClick = () => {
-      setShowFilterModal(true);
-    };
-  
-    const applyFilters = () => {
-      setShowFilterModal(false);
-    };
-  
-    const filteredRatings =
-    filterStars === null
-      ? ratings
-      : ratings.filter((rating) => {
-          const stars = rating.stars;
-          switch (filterStars) {
-            case "4-5":
-              return stars >= 4 && stars <= 5;
-            case "3-4":
-              return stars >= 3 && stars < 4;
-            case "2-3":
-              return stars >= 2 && stars < 3;
-            case "1-2":
-              return stars >= 1 && stars < 2;
-            case "0-1":
-              return stars >= 0 && stars < 1;
-            default:
-              return true;
-          }
+    const [showMessage, setShowMessage] = useState(false);
+    const [selectedMessage, setSelectedMessage] = useState('');
+    
+    const itemsPerPage = 15;
+
+    const filteredRatings = filterStars === ''
+        ? ratings
+        : ratings.filter((rating) => {
+            const stars = rating.stars;
+            switch (filterStars) {
+                case "5": return stars === 5;
+                case "4": return stars === 4;
+                case "3": return stars === 3;
+                case "2": return stars === 2;
+                case "1": return stars === 1;
+                default: return true;
+            }
         });
-        const formatDuration = (duration) => {
-          // Check for null, undefined, or invalid input
-          if (!duration || typeof duration !== 'string' || !duration.includes(':')) {
-            return 'N/A';
-          }
-        
-          try {
-            // Split the duration string into its components
+
+    const formatDuration = (duration) => {
+        if (!duration || typeof duration !== 'string' || !duration.includes(':')) {
+            return '-';
+        }
+        try {
             const [hours, minutes, seconds] = duration.split(':');
-        
-            // Extract the integer part of seconds
             const [wholeSeconds] = seconds.split('.');
-        
-            // Return formatted string
-            return `${parseInt(hours, 10)}h ${parseInt(minutes, 10)}m ${parseInt(wholeSeconds, 10)}s`;
-          } catch (error) {
-            // Handle unexpected errors
-            return 'N/A';
-          }
-        };
-    const extractTime = (isoString) => 
-        new Date(isoString).toLocaleString('en-IN', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-          timeZone: 'Asia/Kolkata',
-        });
-  
-    const handleMoreOptionsClick = (event, message) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedMessage(message);
+            return `${parseInt(hours, 10)}:${parseInt(minutes, 10)}:${parseInt(wholeSeconds, 10)}`;
+        } catch (error) {
+            return '-';
+        }
     };
+
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('en-IN') + ' ' + date.toLocaleTimeString('en-IN', { hour12: false });
+    };
+
+    const exportToExcel = () => {
+        try {
+            const exportData = filteredRatings.map((rating, index) => ({
+                'SI NO': index + 1,
+                'ID': rating.id || '-',
+                'Rating': rating.stars || 0,
+                'User': rating.user_id || '-',
+                'Executive': rating.executive_id || '-',
+                'Message': rating.comment || '-',
+                'Duration': formatDuration(rating.duration),
+                'Date': formatDate(rating.created_at)
+            }));
+
+            
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+            
+            const columnWidths = [
+                { wch: 8 }, 
+                { wch: 10 }, // ID
+                { wch: 10 }, // Rating
+                { wch: 15 }, // User
+                { wch: 15 }, // Executive
+                { wch: 30 }, // Message
+                { wch: 12 }, // Duration
+                { wch: 20 }  // Date
+            ];
+            worksheet['!cols'] = columnWidths;
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Reviews');
+
+            // Generate filename with current date
+            const currentDate = new Date().toISOString().split('T')[0];
+            const filename = `reviews_export_${currentDate}.xlsx`;
+
+            // Save file
+            XLSX.writeFile(workbook, filename);
+            
+            // console.log('Excel file exported successfully');
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            alert('Error exporting data. Please try again.');
+        }
+    };
+
     useEffect(() => {
         const fetchRatings = async () => {
             try {
-                const response = await getTotalRating(); 
-                console.log("API Response:", response.data); 
-    
-                // Extract, combine, and sort ratings by time (latest first)
+                const response = await getTotalRating();
+                // console.log(response);
+                
                 const allRatings = response.reduce((acc, user) => {
                     if (user.ratings && Array.isArray(user.ratings)) {
                         return [...acc, ...user.ratings];
                     }
                     return acc;
                 }, []);
-    
+
                 const sortedRatings = allRatings.sort((a, b) => {
-                    const dateA = new Date(a.created_at);
-                    const dateB = new Date(b.created_at);
-                    return dateB - dateA; 
+                    return new Date(b.created_at) - new Date(a.created_at);
                 });
-    
-                setRatings(sortedRatings); 
+
+                setRatings(sortedRatings);
             } catch (error) {
                 console.error("Error fetching ratings:", error);
-                setRatings([]); 
+                setRatings([]);
             }
         };
-    
-        fetchRatings(); 
+
+        fetchRatings();
     }, []);
-    
-    
-    const handlePopoverClose = () => {
-        setAnchorEl(null);
-    };
 
-    const handleViewClick = () => {
-        setExpandedModalOpen(true);
-        handlePopoverClose(); 
-    };
-
-    const handleExpandedModalClose = () => {
-        setExpandedModalOpen(false);
-    };
     const totalPages = Math.ceil(filteredRatings.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentItems = filteredRatings.slice(startIndex, startIndex + itemsPerPage);
 
-    // Get the current page items
-    const currentItems = filteredRatings.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    );
-  
-    // Handle page change
-    const handlePageChange = (pageNumber) => {
-      setCurrentPage(pageNumber);
+    const renderStars = (rating) => {
+        return '★'.repeat(rating) + '☆'.repeat(5 - rating);
     };
 
-
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    const viewMessage = (message) => {
+        setSelectedMessage(message || 'No message');
+        setShowMessage(true);
+    };
 
     return (
-        <>
-            <Box
-                sx={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '100px',
-                }}
-            >
-                <h4>Review</h4>
-            </Box>
-
-            <div className="filter-icon-hold p-3">
-                <button className="sort-icon-container">
-                    <SortIcon className="sort-icon" onClick={handleFilterBtnClick} />
-                </button>
+        <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', padding: '20px' }}>
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                <h2 style={{ color: '#333', fontWeight: '300', margin: '0' }}>Reviews</h2>
             </div>
 
-            <div className="row p-3">
-  {currentItems.length === 0 ? (
-    <div className="col-12">
-      <p style={{ textAlign: 'center', fontSize: '18px', color: '#757B82' }}>
-        No ratings available.
-      </p>
-    </div>
-  ) : (
-    currentItems.map((rating, index) => (
-      <div className="col-md-3 col-12 mb-3" key={index}>
-        <MDBCard className="h-100">
-          <MDBCardBody>
-            <div
-              className="d-flex justify-content-between align-items-center"
-              style={{ marginBottom: '0.5rem' }}
-            >
-              <p style={{ fontSize: '18px', marginBottom: '0' }}>{rating.id}</p>
-              <div>
-                <span onClick={(e) => handleMoreOptionsClick(e, rating.comment)}
-                  style={{
-                    cursor: 'pointer',
-                   
-                    fontSize: '18px',
-                    color: 'black',
-                  }}
-                >
-                  &#8942;
+            {/* Controls */}
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '20px',
+                padding: '0 10px'
+            }}>
+                <span style={{ color: '#666', fontSize: '14px' }}>
+                    Total: {filteredRatings.length} reviews
                 </span>
-              </div>
-            </div>
-            <div className="d-flex justify-content-between">
-              <div>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>Rating</span>
-                </p>
-                <p style={{ fontSize: '14px', marginBottom: '0.5rem' }}>{rating.stars}</p>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>User ID</span>
-                </p>
-                <p style={{ fontSize: '14px', marginBottom: '0.5rem' }}>{rating.user}</p>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>Message</span>
-                </p>
-                {rating.comment ? 
-    (rating.comment.length > 30 ? `${rating.comment.substring(0, 30)}...` : rating.comment)
-    : 'N/A'}              </div>
-              <div>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>Time</span>
-                </p>
-                <p style={{ fontSize: '14px', marginBottom: '0.5rem' }}>
-                  {extractTime(rating.created_at)}
-                </p>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>Executive ID</span>
-                </p>
-                <p style={{ fontSize: '14px', marginBottom: '0.5rem' }}>{rating.executive}</p>
-                <p style={{ marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '12px', color: '#757B82' }}>Call Duration</span>
-                </p>
-                <p style={{ fontSize: '14px', marginBottom: '0.5rem' }}>{formatDuration(rating.duration)}</p>
-              </div>
-            </div>
-          </MDBCardBody>
-        </MDBCard>
-      </div>
-    ))
-  )}
-</div>
+                
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    {showFilter && (
+                        <select 
+                            value={filterStars} 
+                            onChange={(e) => setFilterStars(e.target.value)}
+                            style={{
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                padding: '6px 12px',
+                                fontSize: '14px'
+                            }}
+                        >
+                            <option value="">All Stars</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    )}
+                    
+                    <button 
+                        onClick={() => setShowFilter(!showFilter)}
+                        style={{
+                            backgroundColor: showFilter ? '#f0f0f0' : 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                        }}
+                    >
+                        Filter
+                    </button>
 
-            {/* Popover for More Options */}
-            <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handlePopoverClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-            >
-                <Box sx={{ p: 2 }}>
-                    <Button variant="light" onClick={handleViewClick}>
-                        View
-                    </Button>
-                    <br />
-                    <Button variant="light" onClick={() => alert('Delete clicked')}>
-                        Delete
-                    </Button>
-                    <br />
-                    <Button variant="light" onClick={() => alert('Report Profile clicked')}>
-                        Report Profile
-                    </Button>
-                </Box>
-            </Popover>
-
-            {/* Expanded View Modal */}
-            <Modal show={expandedModalOpen} onHide={handleExpandedModalClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Expanded Message View</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                {selectedMessage ? <p>{selectedMessage}</p> : "N/A"}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleExpandedModalClose}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            {showFilterModal && (
-        <div
-          className="modal fade show"
-          tabIndex="-1"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Filter Ratings</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowFilterModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Stars</label>
-                  <select
-                    className="form-select"
-                    value={filterStars || ""}
-                    onChange={(e) => setFilterStars(e.target.value)}
-                  >
-                    <option value="">All</option>
-                    <option value="4-5">4-5 Stars</option>
-                    <option value="3-4">3-4 Stars</option>
-                    <option value="2-3">2-3 Stars</option>
-                    <option value="1-2">1-2 Stars</option>
-                    <option value="0-1">0-1 Stars</option>
-                  </select>
+                    <button 
+                        onClick={exportToExcel}
+                        disabled={filteredRatings.length === 0}
+                        style={{
+                            backgroundColor: filteredRatings.length === 0 ? '#f0f0f0' : '#28a745',
+                            color: filteredRatings.length === 0 ? '#999' : 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: filteredRatings.length === 0 ? 'not-allowed' : 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '500'
+                        }}
+                        title={filteredRatings.length === 0 ? 'No data to export' : 'Export to Excel'}
+                    >
+                        📊 Export Excel
+                    </button>
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setFilterStars(null);
-                    setShowFilterModal(false);
-                  }}
-                >
-                  Clear
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={applyFilters}
-                >
-                  Apply
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
-      )}
-            <div className="pagination-div">
-        <Pagination className="justify-content-center mt-4">
-          <Pagination.First
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1}
-          />
-          <Pagination.Prev
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          />
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (pageNumber) => (
-              <Pagination.Item
-                key={pageNumber}
-                active={pageNumber === currentPage}
-                onClick={() => handlePageChange(pageNumber)}
-              >
-                {pageNumber}
-              </Pagination.Item>
-            )
-          )}
-          <Pagination.Next
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          />
-          <Pagination.Last
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          />
-        </Pagination>
-      </div>
 
-            <br />
-        </>
+            {/* Table */}
+            <div style={{ 
+                backgroundColor: 'white', 
+                border: '1px solid #e0e0e0', 
+                borderRadius: '6px',
+                overflow: 'hidden'
+            }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ backgroundColor: '#f8f9fa' }}>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>SI NO</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>ID</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>Rating</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>User</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>Executive</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>Message</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>Duration</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#555', borderBottom: '1px solid #e0e0e0' }}>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.length === 0 ? (
+                            <tr>
+                                <td colSpan="8" style={{ 
+                                    padding: '40px', 
+                                    textAlign: 'center', 
+                                    color: '#999',
+                                    fontSize: '16px'
+                                }}>
+                                    No reviews found
+                                </td>
+                            </tr>
+                        ) : (
+                            currentItems.map((rating, index) => (
+                                <tr key={index} style={{ 
+                                    borderBottom: '1px solid #f0f0f0',
+                                    ':hover': { backgroundColor: '#f9f9f9' }
+                                }}>
+                                    <td style={{ padding: '12px', color: '#333' }}>{startIndex + index + 1}</td>
+                                    <td style={{ padding: '12px', color: '#333' }}>{rating.id}</td>
+                                    <td style={{ padding: '12px', color: '#ff6b35', fontSize: '16px' }}>
+                                        {renderStars(rating.stars)}
+                                    </td>
+                                    <td style={{ padding: '12px', color: '#333' }}>{rating.user_id}</td>
+                                    <td style={{ padding: '12px', color: '#333' }}>{rating.executive_id}</td>
+                                    <td style={{ padding: '12px', color: '#333' }}>
+                                        {rating.comment ? (
+                                            rating.comment.length > 40 ? (
+                                                <span>
+                                                    {rating.comment.substring(0, 40)}...
+                                                    <button 
+                                                        onClick={() => viewMessage(rating.comment)}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            color: '#007bff',
+                                                            cursor: 'pointer',
+                                                            marginLeft: '5px',
+                                                            textDecoration: 'underline'
+                                                        }}
+                                                    >
+                                                        view
+                                                    </button>
+                                                </span>
+                                            ) : rating.comment
+                                        ) : '-'}
+                                    </td>
+                                    <td style={{ padding: '12px', color: '#666', fontFamily: 'monospace' }}>
+                                        {formatDuration(rating.duration)}
+                                    </td>
+                                    <td style={{ padding: '12px', color: '#666', fontSize: '13px' }}>
+                                        {formatDate(rating.created_at)}
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    marginTop: '20px',
+                    gap: '10px'
+                }}>
+                    <button 
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                        style={{
+                            backgroundColor: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === 1 ? 0.5 : 1
+                        }}
+                    >
+                        First
+                    </button>
+                    
+                    <button 
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        style={{
+                            backgroundColor: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === 1 ? 0.5 : 1
+                        }}
+                    >
+                        Previous
+                    </button>
+                    
+                    <span style={{ 
+                        padding: '6px 12px',
+                        backgroundColor: '#f8f9fa',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                    }}>
+                        {currentPage} of {totalPages}
+                    </span>
+                    
+                    <button 
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                            backgroundColor: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === totalPages ? 0.5 : 1
+                        }}
+                    >
+                        Next
+                    </button>
+                    
+                    <button 
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                            backgroundColor: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === totalPages ? 0.5 : 1
+                        }}
+                    >
+                        Last
+                    </button>
+                </div>
+            )}
+
+            {/* Message Modal */}
+            {showMessage && (
+                <div style={{ 
+                    position: 'fixed', 
+                    top: '0', 
+                    left: '0', 
+                    right: '0', 
+                    bottom: '0', 
+                    backgroundColor: 'rgba(0,0,0,0.5)', 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{ 
+                        backgroundColor: 'white', 
+                        borderRadius: '8px', 
+                        padding: '20px', 
+                        maxWidth: '500px', 
+                        width: '90%',
+                        maxHeight: '70vh',
+                        overflow: 'auto'
+                    }}>
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            marginBottom: '15px'
+                        }}>
+                            <h3 style={{ margin: '0', color: '#333', fontSize: '18px' }}>Message</h3>
+                            <button 
+                                onClick={() => setShowMessage(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '20px',
+                                    cursor: 'pointer',
+                                    color: '#999'
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ color: '#333', lineHeight: '1.5', margin: '0' }}>
+                            {selectedMessage}
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

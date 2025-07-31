@@ -8,10 +8,8 @@ export const getAllExecutives = async () => {
     const method = "GET";
     const url = `${BASE_URL}/api/all-executives/`;
     
-    // Make the request using commonApi without request body or custom headers
     const response = await commonApi(method, url);
 
-    // Check if the response is successful and data exists
     if (response.status === 200 && response.data) {
       return response.data; 
     } else {
@@ -101,7 +99,7 @@ export const getManagers = async () => {
 export const deleteManager = async (managerId) => {
   try {
     const method = "DELETE";
-    const url = `${BASE_URL}/api/admins/${managerId}/`;
+    const url = `${BASE_URL}/api/admin/update/${managerId}/`;
 
     const response = await commonApi(method, url);
 
@@ -237,6 +235,37 @@ export const addCategory = async (categoryData) => {
     throw error;
   }
 };
+export const editcategory = async (category_id, categoryData) => {
+  try {
+    const response = await axios.patch(`${BASE_URL}/api/recharge-plan-categories/${category_id}/`, categoryData);
+        
+    if (response.status === 200 && response.data) {
+      console.log("Category Update Response:", response.data);
+      return response.data;
+    } else {
+      throw new Error("Failed to update category data");
+    }
+  } catch (error) {
+    console.error("Error updating category data:", error.message);
+    throw error;
+  }
+};
+
+
+export const deleteCategory = async (category_id) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/api/recharge-plan-categories/${category_id}/`);
+      if (response.status === 204) {
+        return { message: "category deleted successfully" };
+      } else {
+        throw new Error("Failed to delete the category");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error.message);
+      throw error; // Re-throw the error to handle it in the component
+    }
+  };
+
 export const getSingleExecutive = async (executive_id) => {
   try {
     const response = await axios.get(`${BASE_URL}/api/single-executives/${executive_id}/`);
@@ -253,6 +282,8 @@ export const getSingleExecutive = async (executive_id) => {
     throw error;
   }
 };
+
+
 
   export const getexecutiverating = async (userId) => {
     try {
@@ -292,6 +323,29 @@ export const getSingleUser = async (userId) => {
       throw error; // Re-throw the error to handle it in the component
     }
   };
+
+
+  export const getUserRefferal = async (userId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/user/referral/${userId}/`);
+      
+      if (response.status === 200 && response.data) {
+
+        return response.data;
+      } else {
+        throw new Error("Failed to fetch user refferal data");
+      }
+    } catch (error) {
+      console.error("Error fetching user refferal data:", error.message);
+      console.log(error.data);
+      
+      throw error; 
+    }
+  };
+
+
+
+  
   export const getSingleUserstatistics = async (userId) => {
     try {
       // Use axios to make the request
@@ -349,7 +403,6 @@ export const getSingleUser = async (userId) => {
     }
   };
   
-  // Function to delete a single user by ID
 export const deleteSingleUser = async (userId) => {
     try {
       // Use axios to send the DELETE request
@@ -471,7 +524,23 @@ export const editSingleExecutive = async (userId, updatedData) => {
   }
 };
 
+export const updateRedemptionRequestStatus = async (requestId, statusData) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/api/redemption-request/${requestId}/update-status/`,
+      statusData
+    );
 
+    if (response.status === 200 && response.data) {
+      return response.data; 
+    } else {
+      throw new Error("Failed to update redemption request status");
+    }
+  } catch (error) {
+    console.error("Error updating redemption request status:", error.message);
+    throw error; 
+  }
+};
 
 // Function for admin login
 export const adminLogin = async (credentials) => {
@@ -794,6 +863,24 @@ export const getRevenue = async () => {
   }
 };
 
+
+export const getAdminPurchase = async () => {
+  try {
+    // Use commonApi or axios to make the request
+    const response = await axios.get(`${BASE_URL}/api/purchase-by-admin/`);
+    
+    // Check if the response is successful and data exists
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      throw new Error("Failed to admin purchase history data");
+    }
+  } catch (error) {
+    console.error("Error fetching admin purchase history data:", error.message);
+    throw error; 
+  }
+};
+
 export const editRevenue = async (updatedRevenue) => {
   try {
     // Send updatedRevenue as the request body
@@ -819,7 +906,7 @@ export const editRevenue = async (updatedRevenue) => {
 export const banUser = async (userID) => {
   try {
     // Make the API call to ban the executive
-    const response = await axios.post(`${BASE_URL}/api/ban-user//${userID}/`);
+    const response = await axios.post(`${BASE_URL}/api/ban-user/${userID}/`);
     
     // Check if the response is successful
     if (response.status === 200) {
@@ -1041,13 +1128,11 @@ export const getusercoinbalance = async (userId) => {
 
 
 
-// Report
 export const getTotalRating = async () => {
   try {
-    // Use commonApi or axios to make the request
     const response = await axios.get(`${BASE_URL}/api/user-Total-ratings/`);
     
-    // Check if the response is successful and data exists
+
     if (response.status === 200 && response.data) {
       return response.data;
     } else {
@@ -1055,6 +1140,39 @@ export const getTotalRating = async () => {
     }
   } catch (error) {
     console.error("Error fetching Total rating data:", error.message);
+    throw error; 
+  }
+};
+
+
+export const getallBlockedUsers = async () => {
+  try {
+  
+    const response = await axios.get(`${BASE_URL}/api/blocked-users/list/`);
+    
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      throw new Error("Failed to fetch blocked users");
+    }
+  } catch (error) {
+    console.error("Error fetching blocked users data:", error.message);
+    throw error; 
+  }
+};
+
+
+export const getallBannedUsers = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/users/banned/`);
+    
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      throw new Error("Failed to fetch banned users");
+    }
+  } catch (error) {
+    console.error("Error fetching banned users data:", error.message);
     throw error; 
   }
 };
@@ -1191,7 +1309,34 @@ export const getCoinConversions = async () => {
     throw error;
   }
 };
+export const editCoinConversion = async (id, updatedData) => {
+  try {
+    const response = await axios.patch(`${BASE_URL}/api/coin-conversion/${id}/`, updatedData);
 
+    if (response.status === 200 || response.status === 204) {
+      return response.data;
+    } else {
+      throw new Error('Failed to update coin conversion');
+    }
+  } catch (error) {
+    console.error('Error updating coin conversion:', error.message);
+    throw error;
+  }
+};
+export const deleteCoinConversion = async (id) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/api/coin-conversion/${id}/`);
+
+    if (response.status === 204) {
+      return { success: true };
+    } else {
+      throw new Error('Failed to delete coin conversion');
+    }
+  } catch (error) {
+    console.error('Error deleting coin conversion:', error.message);
+    throw error;
+  }
+};
 
 
 export const getRedeemRequests = async () => {
@@ -1279,6 +1424,51 @@ export const editProfile = async (profile_id, profileData) => {
   }
 };
 
+export const sendOtpForProfileEdit = async (mobile_number) => {
+  try {
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('mobile_number', mobile_number);
+
+    const response = await axios.post(`${BASE_URL}/api/admin/send-otp/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to send OTP");
+    }
+  } catch (error) {
+    console.error("Error sending OTP:", error.message);
+    throw error;
+  }
+};
+
+export const verifyOtpForProfileEdit = async ({ mobile_number, new_password, otp }) => {
+  try {
+    const formData = new FormData();
+    formData.append('mobile_number', mobile_number);
+    formData.append('otp', otp);
+
+    const response = await axios.post(`${BASE_URL}/api/admin/verify-otp/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to reset password");
+    }
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    throw error;
+  }
+};
 
 
 export const sendOtpForPasswordReset = async (mobile_number) => {
@@ -1375,3 +1565,39 @@ export const resetPasswordWithOtpAlt = async ({ mobile_number, new_password, otp
     throw error;
   }
 };
+
+
+
+export const TerminateCall = async (executive_id) => {
+  try {
+    const formData = new FormData();
+    formData.append('executive_id', executive_id);
+
+    const response = await axios.post(`${BASE_URL}/api/leave-all-calls/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200) {
+      return response;
+    } else {
+      throw new Error("Failed to send OTP");
+    }
+  } catch (error) {
+    console.error("Error sending OTP:", error.message);
+    throw error;
+  }
+};
+
+export const getRefferalHistory = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/referral-history/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching refferal histories:", error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+

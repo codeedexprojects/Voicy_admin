@@ -17,10 +17,8 @@ function Carousel() {
     const fetchCarouselImages = async () => {
         try {
             const response = await getCarousel();
-            console.log('Fetched carousel images:', response); // Verify structure
-            setImages(response); // Make sure response.data is an array
+            setImages(response); 
         } catch (error) {
-            console.error('Error fetching carousel images:', error);
             toast.error('Failed to load carousel images');
         }
     };
@@ -70,7 +68,6 @@ function Carousel() {
             await fetchCarouselImages(); // Refresh images after add/edit
             handleCloseModal();
         } catch (error) {
-            console.error(`Failed to ${modalMode} image:`, error);
             toast.error(`Failed to ${modalMode === 'add' ? 'add' : 'update'} image`);
         }
     };
@@ -81,7 +78,6 @@ function Carousel() {
             setImages(images.filter(img => img.id !== id));
             toast.success('Image deleted successfully');
         } catch (error) {
-            console.error('Error deleting image:', error);
             toast.error('Failed to delete image');
         }
     };

@@ -67,11 +67,13 @@ function EmployeeDetails() {
     try {
       // Fetch user data
       const userData = await getSingleExecutive(id);
-      console.log("singleexecutive", userData);
+      // console.log("singleexecutive", userData);
 
       setUser({
         name: userData?.name || "",
         age: userData?.age || "",
+        account_number: userData?.account_number || "",
+        ifsc_code: userData?.ifsc_code || "",
         education_qualification: userData?.education_qualification || "",
         skills: userData?.skills || "",
         coins_per_second: userData?.coins_per_second || "",
@@ -115,7 +117,7 @@ function EmployeeDetails() {
 
     try {
       const statisticsData = await getSingleExecutivestatisticsPeriod(id);
-      console.log("executive", statisticsData);
+      // console.log("executive", statisticsData);
 
       setStatistics(statisticsData || {});
     } catch (error) {
@@ -163,21 +165,23 @@ function EmployeeDetails() {
   // const handlePeriodChange = (period) => {
   //   setSelectedPeriod(period);
   // };
-  useEffect(() => {
-    const fetchBlockedUser = async () => {
-      try {
-        const response = await blockedUsers(id);
-        setBlockedUser(response.data || null);
-      } catch (error) {
-        console.error("Error fetching blocked user details:", error);
-        setBlockedUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+   useEffect(() => {
+  const fetchBlockedUser = async () => {
+    try {
+      const response = await blockedUsers(id); 
+      // console.log("blocked users", response);
+      
+      setBlockedUser(response?.[0] || null);
+    } catch (error) {
+      console.error("Error fetching blocked user details:", error);
+      setBlockedUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchBlockedUser();
-  }, [id]);
+  fetchBlockedUser();
+}, [id]);
 
   const [filteredData, setFilteredData] = useState([]);
 
@@ -186,7 +190,7 @@ function EmployeeDetails() {
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
-  console.log("execall",currentData);
+  // console.log("execall",currentData);
   
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -234,7 +238,7 @@ function EmployeeDetails() {
       return (!start || callDate >= start) && (!end || callDate <= end);
     });
 
-    console.log("Filtered Data:", filtered);
+    // console.log("Filtered Data:", filtered);
     setFilteredData(filtered);
     setPage(1); // Reset pagination
   };
@@ -338,7 +342,7 @@ function EmployeeDetails() {
   const handleRemove = async () => {
     try {
       const result = await deleteSingleExecutive(id);
-      console.log(result.message);
+      // console.log(result.message);
 
       toast.success("Executive removed successfully!", { autoClose: 3000 });
 
@@ -778,7 +782,22 @@ function EmployeeDetails() {
                 }
               />
             </div>
-
+<div className="my-3">
+              <label className="formHeading">Account Number</label>
+              <MDBInput
+                id="account_number"
+                type="text"
+                
+                onChange={handleChange}
+                name="account_number"
+               
+                value={
+                  user.account_number === null || user.account_number === undefined
+                    ? ""
+                    : user.account_number
+                }
+              />
+            </div>
             <div className="my-3">
               <label className="formHeading">Set Coin</label>
               <div style={{ position: "relative", display: "inline-block" }}>
@@ -868,6 +887,21 @@ function EmployeeDetails() {
                 value={user.name === id || user.id === undefined ? "" : user.id}
               />
             </div>
+            <div className="my-3">
+                          <label className="formHeading">IFSC Code</label>
+                         <MDBInput
+                            id="ifsc_code"
+                            type="text"
+                           
+                            onChange={handleChange}
+                            name="ifsc_code"
+                            value={
+                              user.ifsc_code === null || user.ifsc_code === undefined
+                                ? ""
+                                : user.ifsc_code
+                            }
+                          />
+                        </div>
              <div className="my-3">
               <label className="formHeading">EXECUTIVE ID</label>
               <MDBInput
@@ -1018,16 +1052,15 @@ function EmployeeDetails() {
               currentData.map((item, index) => (
                 <tr key={index}>
                   <td>{item.call_history?.executive?.name || "N/A"}</td>
-                  <td>{item.call_history?.user?.id || "N/A"}</td>
+                  <td>{item.call_history?.user?.user_id || "N/A"}</td>
                   <td>{item.call_history?.call_start_time || "N/A"}</td>
-                  <td>{item.formatted_duration || "N/A"}</td>
-       
-                            <td>{item.call_history?.call_end_time || "N/A"}</td>
+                  <td>{item.formatted_duration || "N/A"}</td>       
+                  <td>{item.call_history?.call_end_time || "N/A"}</td>
                   <td>{item.call_history?.status || "N/A"}</td>
                 </tr>
               ))
             ) : (
-              // Display a fallback message if there's no data
+              
               <tr>
                 <td colSpan="5" className="text-center">
                   No Call History Found
@@ -1084,7 +1117,7 @@ function EmployeeDetails() {
           className="container mt-2 d-flex justify-content-center align-items-center"
           style={{ minHeight: "60vh" }}
         >
-          <div className="card border-0 shadow" style={{ width: "360px" }}>
+           <div className="card border-0 shadow" style={{ width: "360px" }}>
             {blockedUser ? (
               <>
                 <div className="card-header bg-light text-center">
@@ -1093,16 +1126,20 @@ function EmployeeDetails() {
                 <div className="card-body">
                   <ul className="list-group list-group-flush">
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Name</span>
-                      <span>{blockedUser.name}</span>
+                      <span className="fw-semibold">User ID</span>
+                      <span>{blockedUser.user_id}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Email</span>
-                      <span>{blockedUser.email}</span>
+                      <span className="fw-semibold">Executive ID</span>
+                      <span>{blockedUser.executive_id}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Status</span>
-                      <span>{blockedUser.status}</span>
+                      <span className="fw-semibold">Blocked at</span>
+                      <span>{blockedUser.blocked_at}</span>
+                    </li>
+                    <li className="list-group-item d-flex justify-content-between">
+                      <span className="fw-semibold">Reason</span>
+                      <span>{blockedUser.reason}</span>
                     </li>
                   </ul>
                 </div>

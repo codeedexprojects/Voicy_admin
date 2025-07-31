@@ -55,7 +55,7 @@ function ManageUserDetails() {
   const handleRemove = async () => {
     try {
       const result = await deleteSingleUser(id);
-      console.log(result.message);
+      // console.log(result.message);
 
       // Show the toast message
       toast.success("User removed successfully!", { autoClose: 3000 });
@@ -127,7 +127,7 @@ function ManageUserDetails() {
     getusercoinbalance(id)
       .then((response) => {
         setCoinBalance(response.coin_balance);
-        console.log("coinspend", response);
+        // console.log("coinspend", response);
 
         setLoading(false);
       })
@@ -325,16 +325,16 @@ function ManageUserDetails() {
         <Button
           variant="text"
           color="black"
-          onClick={() => navigate("/userslist")}
+          onClick={() => navigate("/manage-user")}
         >
           <ArrowBackIosNewIcon /> Back
         </Button>
 
-        <div className="row my-3">
-          <div className="col-md-6 col-12  ">
+        {/* <div className="row my-3"> */}
+          {/* <div className="col-md-6 col-12  ">
             <h4>User Details</h4>
-          </div>
-          <div className="col-md-6 col-12 removeBtn d-flex justify-content-end align-items-center">
+          </div> */}
+          {/* <div className="col-md-6 col-12 removeBtn d-flex justify-content-end align-items-center">
             <Button
               style={{
                 width: "30%",
@@ -356,13 +356,13 @@ function ManageUserDetails() {
             <Button variant="contained" color="error" onClick={handleOpen}>
               <RemoveIcon /> Remove User
             </Button>
-          </div>
-        </div>
-        <div className="row row2">
-          <p className="heading1">Personal Information</p>
+          </div> */}
+        {/* </div> */}
+        {/* <div className="row row2">
+          <p className="heading1">Personal Information</p> */}
 
           {/* Column for ID and Gender Forms */}
-          <div className="col-md-3 col-12">
+          {/* <div className="col-md-3 col-12">
             <label htmlFor="employeeID">ID:</label>
             <input
               style={{ background: "white" }}
@@ -395,10 +395,10 @@ function ManageUserDetails() {
               placeholder={user?.mobile_number || "N/A"}
               disabled
             />
-          </div>
+          </div> */}
 
           {/* Total Purchase Card */}
-          <div className="col-md-3 col-12 mt-3">
+          {/* <div className="col-md-3 col-12 mt-3">
             <MDBCard className="card" style={{ height: "100%" }}>
               <MDBCardBody
                 className="cardBody"
@@ -427,10 +427,10 @@ function ManageUserDetails() {
                 </div>
               </MDBCardBody>
             </MDBCard>
-          </div>
+          </div> */}
 
           {/* Total Talktime Card */}
-          <div className="col-md-3 col-12 mt-3">
+          {/* <div className="col-md-3 col-12 mt-3">
             <MDBCard className="card" style={{ height: "100%" }}>
               <MDBCardBody
                 className="cardBody"
@@ -456,10 +456,10 @@ function ManageUserDetails() {
                 </div>
               </MDBCardBody>
             </MDBCard>
-          </div>
+          </div> */}
 
           {/* Coin Spend Card */}
-          <div className="col-md-3 col-12 mt-3">
+          {/* <div className="col-md-3 col-12 mt-3">
             <MDBCard className="card" style={{ height: "100%" }}>
               <MDBCardBody
                 className="cardBody"
@@ -483,9 +483,9 @@ function ManageUserDetails() {
                 </div>
               </MDBCardBody>
             </MDBCard>
-          </div>
+          </div> */}
 
-          <div className="col-md-3 col-12 mt-3">
+          {/* <div className="col-md-3 col-12 mt-3">
             <MDBCard className="card" style={{ height: "100%" }}>
               <MDBCardBody
                 className="cardBody"
@@ -511,8 +511,8 @@ function ManageUserDetails() {
                 </div>
               </MDBCardBody>
             </MDBCard>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
 
         <div className="col-md-4 col-12 my-4"></div>
         <p
@@ -566,7 +566,7 @@ function ManageUserDetails() {
       currentData.map((item, index) => (
         <tr key={index}>
           <td>{item.executive?.name || "N/A"}</td>
-          <td>{item.user?.id || "N/A"}</td>
+          <td>{item.user?.user_id || "N/A"}</td>
           <td>{item.formatted_start_time || "N/A"}</td>
           <td>{item.formatted_duration || "N/A"}</td>
           <td>{item.formatted_end_time || "N/A"}</td>
@@ -629,7 +629,7 @@ function ManageUserDetails() {
             disabled={page === totalPages}
           />
         </Pagination>
-        <p
+        {/* <p
           className=" d-flex justify-content-between align-items-center "
           style={{ fontSize: "28px" }}
         >
@@ -709,8 +709,8 @@ function ManageUserDetails() {
               </div>
             ))
           )}
-        </div>
-        <Modal
+        </div> */}
+        {/* <Modal
           show={open}
           onHide={handleClose}
           centered
@@ -774,7 +774,7 @@ function ManageUserDetails() {
               Add
             </Button>
           </Modal.Footer>
-        </Modal>
+        </Modal> */}
       </div>
     </>
   );

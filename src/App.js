@@ -32,6 +32,11 @@ import ManageUser from "./Pages/ManageUser";
 import Category from "./Pages/Category";
 import CoinConversion from "./Pages/CoinConversion";
 import Profile from "./Pages/Profile";
+import ManagerDashboard from "./Pages/ManagerDashboard";
+import ManagerProfile from "./Pages/ManagerProfile";
+import BannedUsers from "./Pages/BannedUsers";
+import BlockedUsers from "./Pages/BlockedUsers";
+import ReferralHistory from "./Pages/ReferralHistory"
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -46,6 +51,7 @@ function App() {
   const AdminRoute = ({ element }) => {
     return isAdminLoggedIn() ? element : <Navigate to="/login" />;
   };
+  
   const isAdminLoggedIn = () => {
     return localStorage.getItem("userId");
   };
@@ -63,14 +69,16 @@ function App() {
     }
 
     if (requiredRole) {
-      if (role !== requiredRole) {
-        return role === "manager_executive" ? (
-          <Navigate to="/manage-executive" />
-        ) : role === "manager_user" ? (
-          <Navigate to="/manage-user" />
-        ) : (
-          <Navigate to="/login" />
-        );
+      // Check if user has the required role or if hr_executive should have access to manager_executive routes
+      const hasAccess = role === requiredRole || 
+                        (requiredRole === "manager_executive" && role === "hr_executive");
+      
+      if (!hasAccess) {
+        if (role === "manager_executive" || role === "hr_executive") {
+          return <Navigate to="/managerdashboard" />;
+        } else {
+          return <Navigate to="/login" />;
+        }
       }
     } else {
       if (role === "superuser") {
@@ -109,6 +117,16 @@ function App() {
                   />
                 }
               ></Route>
+
+              <Route
+                path="/referral"
+                element={
+                  <ProtectedRoute
+                    element={<ReferralHistory />}
+                    requiredRole="superuser"
+                  />
+                }
+              ></Route>
               <Route
                 path="/admin-profile"
                 element={
@@ -128,6 +146,8 @@ function App() {
                   />
                 }
               ></Route>
+
+              
               <Route
                 path="/usermanage"
                 element={
@@ -272,6 +292,24 @@ function App() {
                   />
                 }
               ></Route>
+               <Route
+                path="/banned-users"
+                element={
+                  <ProtectedRoute
+                    element={<BannedUsers />}
+                    requiredRole="superuser"
+                  />
+                }
+              ></Route>
+              <Route
+                path="/blocked-users"
+                element={
+                  <ProtectedRoute
+                    element={<BlockedUsers />}
+                    requiredRole="superuser"
+                  />
+                }
+              ></Route>
               <Route
                 path="/review"
                 element={
@@ -301,6 +339,7 @@ function App() {
                 }
               ></Route>
 
+              {/* Routes accessible by both manager_executive and hr_executive */}
               <Route
                 path="/manage-executive"
                 element={
@@ -334,7 +373,7 @@ function App() {
                 path="/manager-profile"
                 element={
                   <ProtectedRoute
-                    element={<Profile />}
+                    element={<ManagerProfile />}
                     requiredRole="manager_executive"
                   />
                 }
@@ -349,26 +388,16 @@ function App() {
                   />
                 }
               ></Route>
-                <Route
-                path="/activities"
-                element={
-                  <ProtectedRoute
-                    element={<Activities />}
-                    requiredRole="manager_executive"
-                  />
-                }
-              ></Route>
+              
               <Route
-                path="/reports"
+                path="/managerdashboard"
                 element={
                   <ProtectedRoute
-                    element={<Report />}
+                    element={<ManagerDashboard />}
                     requiredRole="manager_executive"
                   />
                 }
               ></Route>
-
-               
 
               <Route path="*" element={<NotFound />} />
             </Routes>

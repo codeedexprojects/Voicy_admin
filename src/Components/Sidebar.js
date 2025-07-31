@@ -18,7 +18,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
   const role = localStorage.getItem("Bestie_role");
 
   if (!token) return null;
-  
+
   return (
     <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
       <div className="sidebar-header">
@@ -32,21 +32,24 @@ function Sidebar({ isOpen, toggleSidebar }) {
           <>
             {[
               { path: "/", icon: <FaHome />, label: "Home" },
+              { path: "/admin-profile", icon: <FaUser />, label: "Profile" },
               {
                 path: "/executive",
                 icon: <FaUserFriends />,
                 label: "Executives",
               },
               { path: "/userslist", icon: <FaUser />, label: "Users" },
+              { path: "/referral", icon: <FaUser />, label: "Referral" },
               { path: "/review", icon: <FaFileAlt />, label: "Review" },
               { path: "/reports", icon: <FaFileAlt />, label: "Reports" },
               { path: "/managers", icon: <FaUser />, label: "Manager" },
+              { path: "/blocked-users", icon: <FaUser />, label: "Blocked Users" },
+              { path: "/banned-users", icon: <FaUser />, label: "Banned Users" },
               { path: "/coinconversion", icon: <FaCoins />, label: "Coin-Conversion" },
               { path: "/account", icon: <FaUsers />, label: "Accounts" },
               { path: "/activities", icon: <FaBell />, label: "Activity" },
               { path: "/category", icon: <FaUser />, label: "Category" },
               { path: "/pricing", icon: <FaRupeeSign />, label: "Pricing" },
-              { path: "/admin-profile", icon: <FaUser />, label: "Profile" },
             ].map((item) => (
               <li
                 key={item.path}
@@ -59,9 +62,14 @@ function Sidebar({ isOpen, toggleSidebar }) {
               </li>
             ))}
           </>
-        ) : role === "manager_executive" ? (
+        ) : role === "manager_executive" || role === "hr_executive" ? (
           <>
             {[
+              {
+                path: "/managerdashboard",
+                icon: <FaUser />,
+                label: "Home",
+              },
               {
                 path: "/manage-executive",
                 icon: <FaUserFriends />,
@@ -72,7 +80,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
                 icon: <FaUser />,
                 label: "Manage Users",
               },
-               {
+              {
                 path: "/manager-profile",
                 icon: <FaUser />,
                 label: "Profile",

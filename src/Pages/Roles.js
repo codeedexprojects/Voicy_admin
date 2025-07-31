@@ -97,7 +97,7 @@ function Roles() {
                 // Adding a new role via API
                 try {
                     const response = await AddRole(formData); // Call AddRole API
-                    console.log('Role added successfully:', response);
+                    // console.log('Role added successfully:', response);
 
                     // Add the new role to the state
                     setData((prevData) => [...prevData, formData]);

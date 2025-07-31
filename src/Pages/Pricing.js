@@ -68,21 +68,27 @@ function Pricing() {
     category_id: "",
   });
 
-  const handleShowModal = (cardId, data) => {
-    setSelectedCard(cardId);
-    if (cardId) {
-      setFormData({ ...data, category_id: "1" });
-    } else {
-      setFormData({
-        plan_name: "",
-        base_price: "",
-        coin_package: "",
-        discount_percentage: "",
-        category_id: categories.length > 0 ? categories[0].id : "", // Default to first category
-      });
-    }
-    setShowModal(true);
-  };
+const handleShowModal = (cardId, data) => {
+  setSelectedCard(cardId);
+  if (cardId) {
+    // Find category ID by matching the name
+    const category = categories.find(cat => cat.name === data.category_name);
+    setFormData({ 
+      ...data, 
+      category_id: category ? category.id : "",
+      coin_package: data.coin_package || data.adjusted_coin_package 
+    });
+  } else {
+    setFormData({
+      plan_name: "",
+      base_price: "",
+      adjusted_coin_package: "",
+      discount_percentage: "",
+      category_id: categories.length > 0 ? categories[0].id : ""
+    });
+  }
+  setShowModal(true);
+};
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -96,44 +102,54 @@ function Pricing() {
     });
   };
 
-  const handleSaveChanges = async () => {
-    try {
-      console.log("formData before saving:", formData);
+ const handleSaveChanges = async () => {
+  try {
+    // console.log("formData before saving:", formData);
 
-      if (
-        !formData.plan_name ||
-        !formData.coin_package ||
-        !formData.base_price || !formData.category_id
-      ) {
-        console.error("All fields are required");
-        toast.error("All fields are required!");
-        return;
-      }
-
-      const dataToSubmit = { ...formData, category_id: "1" };
-
-      if (!dataToSubmit.discount_percentage) {
-        delete dataToSubmit.discount_percentage;
-      }
-
-      if (selectedCard) {
-        await EditPackage(selectedCard, dataToSubmit);
-        console.log("Package updated successfully");
-        toast.success("Package updated successfully!");
-        await fetchPackages(); // Fetch the updated list after a successful edit
-      } else {
-        await AddPackage(dataToSubmit);
-        console.log("Package added successfully");
-        toast.success("Package added successfully!");
-        await fetchPackages(); // Fetch the updated list after a successful addition
-      }
-
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error saving changes:", error.message);
-      toast.error(`Error saving changes: ${error.message}`);
+    if (
+      !formData.plan_name ||
+      !formData.coin_package ||
+      !formData.base_price || 
+      !formData.category_id
+    ) {
+      console.error("All fields are required");
+      toast.error("All fields are required!");
+      return;
     }
-  };
+
+    // Validate discount percentage if provided
+    if (formData.discount_percentage && 
+        (isNaN(formData.discount_percentage) || 
+         formData.discount_percentage < 0 || 
+         formData.discount_percentage > 100)) {
+      toast.error("Discount percentage must be a number between 0 and 100!");
+      return;
+    }
+
+    const dataToSubmit = { ...formData }; 
+
+    if (!dataToSubmit.discount_percentage) {
+      delete dataToSubmit.discount_percentage;
+    }
+
+    if (selectedCard) {
+      await EditPackage(selectedCard, dataToSubmit);
+      // console.log("Package updated successfully");
+      toast.success("Package updated successfully!");
+      await fetchPackages();
+    } else {
+      await AddPackage(dataToSubmit);
+      // console.log("Package added successfully");
+      toast.success("Package added successfully!");
+      await fetchPackages();
+    }
+
+    handleCloseModal();
+  } catch (error) {
+    console.error("Error saving changes:", error.message);
+    toast.error(`Error saving changes: ${error.message}`);
+  }
+};
 
   const handleInputChange = (e) => {
     setFormData({
@@ -146,7 +162,7 @@ function Pricing() {
     try {
       setLoading(true);
       const packageData = await getPackage();
-      console.log(packageData);
+      // console.log(packageData);
       
       setPackages(packageData);
     } catch (error) {
@@ -226,7 +242,6 @@ function Pricing() {
                   </Dropdown>
                 </div>
 
-                {/* Labels and Values */}
                 <div>
                   <Row>
                     <Col>
@@ -247,7 +262,7 @@ function Pricing() {
                             marginBottom: "0px",
                           }}
                         >
-                          {pkg.discount_percentage}% OFF Now
+                          {pkg.discount_percentage ? `${pkg.discount_percentage}% OFF Now` : "No Discount"}
                         </p>
                       </div>
                     </Col>
@@ -293,7 +308,7 @@ function Pricing() {
                             marginBottom: "0px",
                           }}
                         >
-                          {pkg.coin_package}
+                          {pkg.adjusted_coin_package}
                         </p>
                       </div>
                    </Col>
@@ -362,22 +377,23 @@ function Pricing() {
               ))}
             </Form.Control>
           </Form.Group>
-            <Form.Group className="mb-3" controlId="formLabel">
+            <Form.Group className="mb-3" controlId="formDiscountPercentage">
               <Form.Label style={{ fontSize: "14px", color: "#323343" }}>
-                Label (Optional)
+                Discount Percentage (Optional)
               </Form.Label>
               <Form.Control
-                as="select"
+                type="number"
                 name="discount_percentage"
                 value={formData.discount_percentage || ""}
                 onChange={handleInputChange}
-              >
-                <option value="">No Discount</option>
-                <option value="20">20% OFF Now</option>
-                <option value="15">15% OFF Now</option>
-                <option value="10">10% OFF Now</option>
-                <option value="5">5% OFF Now</option>
-              </Form.Control>
+                placeholder="Enter discount percentage (0-100)"
+                min="0"
+                max="100"
+                step="0.01"
+              />
+              <Form.Text className="text-muted">
+                Enter a number between 0 and 100 (e.g., 15 for 15% off)
+              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formCash">

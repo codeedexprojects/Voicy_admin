@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Table, Alert, Spinner, Modal, Toast, ToastContainer } from 'react-bootstrap';
-import { createCoinConversion, getCoinConversions } from '../services/allApi';
+import { Container, Row, Col, Card, Form, Button, Table, Alert, Spinner, Modal } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { createCoinConversion, deleteCoinConversion, editCoinConversion, getCoinConversions } from '../services/allApi';
 import './coinconversion.css';
 
 function CoinConversion() {
@@ -8,18 +10,31 @@ function CoinConversion() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // Toast state
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastVariant, setToastVariant] = useState('success');
-  
   // Modal state
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   
   // Form state
   const [coinsEarned, setCoinsEarned] = useState('');
   const [rupees, setRupees] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+  
+  // Edit/Delete state
+  const [editingItem, setEditingItem] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Notification function
+  const notify = (message, type = 'success') => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
 
   // Fetch existing coin conversions
   const fetchConversions = async () => {
@@ -27,8 +42,9 @@ function CoinConversion() {
     try {
       const response = await getCoinConversions();
       setConversions(response);
+      console.log('Fetched conversions:', response);
     } catch (err) {
-      showToastMessage('Failed to load conversion data. Please try again later.', 'danger');
+      notify('Failed to load conversion data. Please try again later.', 'error');
       console.error('Error fetching conversions:', err);
     } finally {
       setLoading(false);
@@ -39,26 +55,56 @@ function CoinConversion() {
     fetchConversions();
   }, []);
 
-  // Toast message helper
-  const showToastMessage = (message, variant = 'success') => {
-    setToastMessage(message);
-    setToastVariant(variant);
-    setShowToast(true);
-  };
 
-  // Handle modal close
   const handleCloseModal = () => {
     setShowModal(false);
-    // Reset form
     setCoinsEarned('');
     setRupees('');
     setError(null);
+    setEditingItem(null);
+    setIsEditing(false);
   };
 
-  // Handle modal open
+  // Handle modal open for add
   const handleShowModal = () => {
     setShowModal(true);
     setError(null);
+    setIsEditing(false);
+  };
+
+  // Handle edit
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setCoinsEarned(item.coins_earned.toString());
+    setRupees(item.rupees.toString());
+    setIsEditing(true);
+    setShowModal(true);
+    setError(null);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = (item) => {
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+    
+    setFormSubmitting(true);
+    try {
+      await deleteCoinConversion(itemToDelete.id);
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+      notify('Conversion deleted successfully!');
+      fetchConversions();
+    } catch (err) {
+      notify('Failed to delete conversion. Please try again.', 'error');
+      console.error('Error deleting conversion:', err);
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
   // Handle form submission
@@ -74,32 +120,34 @@ function CoinConversion() {
       }
       
       // Parse values to ensure proper format
-      const formattedCoins = parseInt(coinsEarned, 10);
-      const formattedRupees = parseFloat(rupees).toFixed(2);
+      const formattedCoins = coinsEarned;
+      const formattedRupees = rupees;
       
       if (isNaN(formattedCoins) || isNaN(parseFloat(formattedRupees))) {
         throw new Error('Please enter valid numbers');
       }
 
-      // Submit the data
-      const newConversion = {
+      const conversionData = {
         coins_earned: formattedCoins,
         rupees: formattedRupees
       };
+
+      if (isEditing && editingItem) {
+        // Update existing conversion
+        await editCoinConversion(editingItem.id, conversionData);
+        notify('Conversion updated successfully!');
+      } else {
+        // Create new conversion
+        await createCoinConversion(conversionData);
+        console.log('Conversion created:', conversionData);
+        notify('Conversion added successfully!');
+      }
       
-      await createCoinConversion(newConversion);
-      
-      // Close modal and reset form
       handleCloseModal();
-      
-      // Show success toast
-      showToastMessage('Conversion added successfully!');
-      
-      // Refresh the data
       fetchConversions();
     } catch (err) {
-      setError(err.message || 'An error occurred while adding the conversion');
-      console.error('Error adding conversion:', err);
+      setError(err.message || 'An error occurred while saving the conversion');
+      console.error('Error saving conversion:', err);
     } finally {
       setFormSubmitting(false);
     }
@@ -140,14 +188,32 @@ function CoinConversion() {
                       <th>SI NO</th>
                       <th>Coins Earned</th>
                       <th>Rupees</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody className="coin-conversion__table-body">
-                    {conversions.map((item) => (
+                    {conversions.map((item,index) => (
                       <tr key={item.id} className="coin-conversion__table-row">
-                        <td className="coin-conversion__table-cell-id">{item.id}</td>
+                        <td className="coin-conversion__table-cell-id">{index+1}</td>
                         <td className="coin-conversion__table-cell-coins">{item.coins_earned.toLocaleString()}</td>
                         <td className="coin-conversion__table-cell-rupees">₹{parseFloat(item.rupees).toFixed(2)}</td>
+                        <td className="coin-conversion__table-cell-actions">
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="me-2"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleDeleteConfirm(item)}
+                          >
+                            Delete
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -162,7 +228,7 @@ function CoinConversion() {
         </Col>
       </Row>
 
-      {/* Conversion Modal */}
+      {/* Add/Edit Modal */}
       <Modal 
         show={showModal} 
         onHide={handleCloseModal}
@@ -171,7 +237,9 @@ function CoinConversion() {
         className="coin-conversion__modal"
       >
         <Modal.Header closeButton className="coin-conversion__modal-header">
-          <Modal.Title>Add New Conversion</Modal.Title>
+          <Modal.Title>
+            {isEditing ? 'Edit Conversion' : 'Add New Conversion'}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className="coin-conversion__modal-body">
           {error && <Alert variant="danger" className="coin-conversion__alert-error">{error}</Alert>}
@@ -222,35 +290,58 @@ function CoinConversion() {
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="coin-conversion__spinner" />
                 <span className="ms-2">Processing...</span>
               </>
-            ) : 'Save Conversion'}
+            ) : (isEditing ? 'Update Conversion' : 'Save Conversion')}
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Toast Container */}
-      <ToastContainer 
-        position="bottom-end" 
-        className="p-3 coin-conversion__toast-container"
+      {/* Delete Confirmation Modal */}
+      <Modal 
+        show={showDeleteModal} 
+        onHide={() => setShowDeleteModal(false)}
+        centered
+        className="coin-conversion__delete-modal"
       >
-        <Toast 
-          onClose={() => setShowToast(false)} 
-          show={showToast} 
-          delay={3000} 
-          autohide
-          bg={toastVariant}
-          className="coin-conversion__toast"
-        >
-          <Toast.Header className="coin-conversion__toast-header">
-            <strong className="me-auto">Coin Conversion</strong>
-          </Toast.Header>
-          <Toast.Body className={`coin-conversion__toast-body ${toastVariant === 'danger' || toastVariant === 'dark' ? 'text-white' : ''}`}>
-            {toastMessage}
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
+        <Modal.Header closeButton className="coin-conversion__modal-header">
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="coin-conversion__modal-body">
+          <p>Are you sure you want to delete this conversion?</p>
+          {itemToDelete && (
+            <div className="coin-conversion__delete-details">
+              <strong>Coins Earned:</strong> {itemToDelete.coins_earned.toLocaleString()}<br />
+              <strong>Rupees:</strong> ₹{parseFloat(itemToDelete.rupees).toFixed(2)}
+            </div>
+          )}
+          <p className="text-muted mt-2">This action cannot be undone.</p>
+        </Modal.Body>
+        <Modal.Footer className="coin-conversion__modal-footer">
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowDeleteModal(false)}
+            disabled={formSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={handleDelete}
+            disabled={formSubmitting}
+          >
+            {formSubmitting ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="ms-2">Deleting...</span>
+              </>
+            ) : 'Delete'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* React Toastify Container */}
+      <ToastContainer />
     </Container>
   );
 }
 
 export default CoinConversion;
-

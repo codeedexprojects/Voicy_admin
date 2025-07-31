@@ -60,6 +60,8 @@ function ManageExecutiveDetail() {
       setUser({
         name: userData?.name || "",
         age: userData?.age || "",
+        account_number: userData?.account_number || "",
+        ifsc_code: userData?.ifsc_code || "",
         education_qualification: userData?.education_qualification || "",
         skills: userData?.skills || "",
         coins_per_second: userData?.coins_per_second || "",
@@ -84,8 +86,9 @@ function ManageExecutiveDetail() {
         page,
         ITEMS_PER_PAGE
       );
+      
       setCallHistory(callHistoryData || []);
-
+      // console.log("callhistories",callHistoryData);
       if (!callHistoryData || callHistoryData.length === 0) {
         setError("No Call History Found");
       }
@@ -114,7 +117,6 @@ function ManageExecutiveDetail() {
     }
 
     try {
-      // Fetch talktime
       const talktimeData = await getexecutivetalktime(id);
       setTalktime(talktimeData || {});
     } catch (error) {
@@ -128,21 +130,24 @@ function ManageExecutiveDetail() {
     fetchData();
   }, [id, page]);
 
-  useEffect(() => {
-    const fetchBlockedUser = async () => {
-      try {
-        const response = await blockedUsers(id); // Fetch user details using API
-        setBlockedUser(response.data || null); // Update user state
-      } catch (error) {
-        console.error("Error fetching blocked user details:", error);
-        setBlockedUser(null); // Set state to null if error occurs
-      } finally {
-        setLoading(false); // Stop loading after fetch
-      }
-    };
+ useEffect(() => {
+  const fetchBlockedUser = async () => {
+    try {
+      const response = await blockedUsers(id); 
+      // console.log("blocked users", response);
+      
+      setBlockedUser(response?.[0] || null); // 👈 pick the first item
+    } catch (error) {
+      console.error("Error fetching blocked user details:", error);
+      setBlockedUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchBlockedUser();
-  }, [id]);
+  fetchBlockedUser();
+}, [id]);
+
 
   const [filteredData, setFilteredData] = useState([]);
 
@@ -151,6 +156,8 @@ function ManageExecutiveDetail() {
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
+  // console.log("calls",currentData);
+  
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
@@ -166,7 +173,7 @@ function ManageExecutiveDetail() {
   // Handle date range filtering
   const handleFilter = () => {
     if (!startDate && !endDate) {
-      setFilteredData(callHistory); // Reset to all data if no dates are selected
+      setFilteredData(callHistory); 
       return;
     }
 
@@ -197,7 +204,7 @@ function ManageExecutiveDetail() {
       return (!start || callDate >= start) && (!end || callDate <= end);
     });
 
-    console.log("Filtered Data:", filtered);
+    // console.log("Filtered Data:", filtered);
     setFilteredData(filtered);
     setPage(1); // Reset pagination
   };
@@ -278,13 +285,13 @@ function ManageExecutiveDetail() {
   const handleRemove = async () => {
     try {
       const result = await deleteSingleExecutive(id);
-      console.log(result.message);
+      // console.log(result.message);
 
       toast.success("Executive removed successfully!", { autoClose: 3000 });
 
       handleClose();
 
-      // Wait for 3 seconds (until the toast disappears), then navigate
+      
       setTimeout(() => {
         navigate("/manage-executive");
       }, 2000);
@@ -311,7 +318,6 @@ function ManageExecutiveDetail() {
     setIsEdited(true);
   };
   const handleSave = async () => {
-    // Filter out empty fields from user data
     const updatedUser = Object.entries(user).reduce((acc, [key, value]) => {
       if (value !== "" && value !== null && value !== undefined) {
         acc[key] = value;
@@ -319,19 +325,19 @@ function ManageExecutiveDetail() {
       return acc;
     }, {});
   
-    // Ensure required fields have default values
+   
     updatedUser.is_banned = user.is_banned !== undefined ? user.is_banned : false;
     updatedUser.is_suspended = user.is_suspended !== undefined ? user.is_suspended : false;
   
     try {
-      // Call the API to update the executive data
+      
       const updatedData = await editSingleExecutive(id, updatedUser);
   
       // If successful, show a success message
       toast.success("Changes saved successfully!");
-      setIsEdited(false); // Hide the Save button after saving
+      setIsEdited(false); 
     } catch (error) {
-      // Handle error if the update fails
+
       console.error("Error saving data:", error.message);
       toast.error("Failed to save changes.");
     }
@@ -458,21 +464,7 @@ function ManageExecutiveDetail() {
               </MDBCardBody>
             </MDBCard>
           </div>
-          {/* <div className="col-md-3 col-12">
-                        <MDBCard className='card'>
-                            <MDBCardBody className='cardBody'>
-
-                                <div className='mx-3'><img alt='' className='cardImg' src='https://cdn1.iconfinder.com/data/icons/jetflat-multimedia-vol-4/90/0042_083_favorite_star_rate-1024.png' /></div>
-                                <div>
-                                    <MDBCardTitle className='cardTitle'>Coin Balance</MDBCardTitle>
-                                    <MDBCardText>
-                                        <h4>{statistics.total_coins_balance}</h4>
-                                    </MDBCardText>
-                                </div>
-
-                            </MDBCardBody>
-                        </MDBCard>
-                    </div> */}
+        
 
           <div className="col-md-3 col-12">
             <MDBCard>
@@ -503,6 +495,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="name"
                 type="text"
+                disabled
                 name="name"
                 value={
                   user.name === null || user.name === undefined ? "" : user.name
@@ -516,6 +509,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="age"
                 type="text"
+                disabled
                 name="age"
                 value={
                   user.age === null || user.age === undefined ? "" : user.age
@@ -528,6 +522,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="education_qualification"
                 type="text"
+                disabled
                 name="education_qualification"
                 value={
                   user.education_qualification === null ||
@@ -543,6 +538,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="skills"
                 type="text"
+                disabled
                 onChange={handleChange}
                 name="skills"
                 // disabled
@@ -554,12 +550,30 @@ function ManageExecutiveDetail() {
               />
             </div>
 
+             <div className="my-3">
+              <label className="formHeading">Account Number</label>
+              <MDBInput
+                id="account_number"
+                type="text"
+                disabled
+                onChange={handleChange}
+                name="account_number"
+                // disabled
+                value={
+                  user.account_number === null || user.account_number === undefined
+                    ? ""
+                    : user.account_number
+                }
+              />
+            </div>
+
             <div className="my-3">
               <label className="formHeading">Set Coin</label>
               <div style={{ position: "relative", display: "inline-block" }}>
                 <MDBInput
                   id="coins_per_second"
                   type="text"
+                  disabled
                   name="coins_per_second"
                   onChange={handleChange}
                   value={
@@ -594,6 +608,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="mobile_number"
                 type="text"
+                disabled
                 name="mobile_number"
                 onChange={handleChange}
                 // disabled
@@ -610,6 +625,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="place"
                 type="text"
+                disabled
                 name="place"
                 value={
                   user.place === null || user.place === undefined
@@ -624,7 +640,7 @@ function ManageExecutiveDetail() {
               <MDBInput
                 id="profession"
                 type="text"
-                // disabled
+                disabled
                 onChange={handleChange}
                 name="profession"
                 value={
@@ -637,19 +653,36 @@ function ManageExecutiveDetail() {
             <div className="my-3">
               <label className="formHeading">ID</label>
               <MDBInput
-                id="form1"
+                // id="form1"
                 type="text"
                 disabled
                 value={user.name === id || user.id === undefined ? "" : user.id}
               />
             </div>
+             <div className="my-3">
+              <label className="formHeading">IFSC Code</label>
+             <MDBInput
+                id="ifsc_code"
+                type="text"
+                disabled
+                onChange={handleChange}
+                name="ifsc_code"
+                value={
+                  user.ifsc_code === null || user.ifsc_code === undefined
+                    ? ""
+                    : user.ifsc_code
+                }
+              />
+            </div>
           </div>
+          
           <div className="col-md-4 col-12">
             <div className="my-3">
               <label className="formHeading">Email Address</label>
               <MDBInput
                 id="email_id"
                 type="text"
+                disabled
                 name="email_id"
                 value={
                   user.email_id === null || user.email_id === undefined
@@ -664,6 +697,7 @@ function ManageExecutiveDetail() {
               <select
                 id="gender"
                 name="gender"
+                disabled
                 className="form-select"
                 onChange={handleChange}
                 value={user.gender || ""}
@@ -682,6 +716,7 @@ function ManageExecutiveDetail() {
               <select
                 id="status"
                 name="status"
+                disabled
                 className="form-select"
                 onChange={handleChange}
                 value={user.status || "N/A"}
@@ -700,7 +735,7 @@ function ManageExecutiveDetail() {
                 id="password"
                 name="password"
                 type="text"
-                // disabled
+                disabled
                 onChange={handleChange}
                 value={
                   user.password === null || user.password === undefined
@@ -781,19 +816,18 @@ function ManageExecutiveDetail() {
                 </td>
               </tr>
             ) : currentData && currentData.length > 0 ? (
-              // Map and display the data rows
               currentData.map((item, index) => (
                 <tr key={index}>
                   <td>{item.call_history?.executive?.name || "N/A"}</td>
-                  <td>{item.call_history?.user?.id || "N/A"}</td>
+                  <td>{item.call_history?.user?.user_id || "N/A"}</td>
                   <td>{item.call_history?.call_start_time || "N/A"}</td>
-                  <td>{item.call_history?.formatted_duration || "N/A"}</td>
+                  <td>{item.formatted_duration || "N/A"}</td>
                   <td>{item.call_history?.call_end_time || "N/A"}</td>
                   <td>{item.call_history?.status || "N/A"}</td>
                 </tr>
               ))
             ) : (
-              // Display a fallback message if there's no data
+              
               <tr>
                 <td colSpan="5" className="text-center">
                   No Call History Found
@@ -859,16 +893,20 @@ function ManageExecutiveDetail() {
                 <div className="card-body">
                   <ul className="list-group list-group-flush">
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Name</span>
-                      <span>{blockedUser.name}</span>
+                      <span className="fw-semibold">User ID</span>
+                      <span>{blockedUser.user_id}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Email</span>
-                      <span>{blockedUser.email}</span>
+                      <span className="fw-semibold">Executive ID</span>
+                      <span>{blockedUser.executive_id}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between">
-                      <span className="fw-semibold">Status</span>
-                      <span>{blockedUser.status}</span>
+                      <span className="fw-semibold">Blocked at</span>
+                      <span>{blockedUser.blocked_at}</span>
+                    </li>
+                    <li className="list-group-item d-flex justify-content-between">
+                      <span className="fw-semibold">Reason</span>
+                      <span>{blockedUser.reason}</span>
                     </li>
                   </ul>
                 </div>

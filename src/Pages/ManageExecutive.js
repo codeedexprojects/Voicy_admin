@@ -22,7 +22,7 @@ import {
 import "./Employee.css";
 import {
   banExecutive,
-  getAllExecutives,
+  
   getExecutiveStatistics,
   offlineExecutive,
   onlineExecutive,
@@ -91,12 +91,12 @@ function ManageExecutive() {
         setSelectedExecutive({
           ...executive,
           profile_photo_url: requestDetails.profile_photo_url,
-          error: null, // Clear any previous error
+          error: null, 
         });
       } else {
         setSelectedExecutive({
           ...executive,
-          profile_photo_url: null, // Clear any previous photo
+          profile_photo_url: null, 
           error: "No pending profile picture found for the given executive.", // Set error
         });
       }
@@ -106,9 +106,9 @@ function ManageExecutive() {
       setSelectedExecutive({
         ...executive,
         profile_photo_url: null,
-        error: "Failed to fetch update request. Please try again.", // Generic error message
+        error: "Failed to fetch update request. Please try again.",
       });
-      setShowRequestModal(true); // Always show the modal
+      setShowRequestModal(true); 
     }
   };
 
@@ -176,7 +176,7 @@ function ManageExecutive() {
       try {
         const id = localStorage.getItem("ManagerId");
         const data = await getUnderManagerExecutives(id);
-        console.log(data);
+        // console.log(data);
 
         const status = await getExecutiveStatistics();
         setstatus(status);
@@ -317,7 +317,7 @@ function ManageExecutive() {
         )
       );
       handleCloseModal();
-      console.log("Executive banned successfully:", result);
+      // console.log("Executive banned successfully:", result);
 
       toast.success("Executive banned successfully!");
     } catch (err) {
@@ -340,7 +340,7 @@ function ManageExecutive() {
         )
       );
       handleCloseModal();
-      console.log("Executive unbanned successfully:", result);
+      // console.log("Executive unbanned successfully:", result);
 
       // Show success toast
       toast.success("Executive unbanned successfully!");
@@ -366,7 +366,7 @@ function ManageExecutive() {
       });
 
       handleCloseModal();
-      console.log("Executive online successfully:", result);
+      // console.log("Executive online successfully:", result);
       toast.success("Executive set online successfully!");
     } catch (err) {
       console.error("Error setting executive online:", err.message);
@@ -389,7 +389,7 @@ function ManageExecutive() {
       });
 
       handleCloseModal();
-      console.log("Executive offline successfully:", result);
+      // console.log("Executive offline successfully:", result);
       toast.success("Executive set offline successfully!");
     } catch (err) {
       console.error("Error setting executive offline:", err.message);
@@ -409,7 +409,7 @@ function ManageExecutive() {
         )
       );
       handleCloseModal();
-      console.log("Executive suspended successfully:", result);
+      // console.log("Executive suspended successfully:", result);
 
       // Show success toast
       toast.success("Executive Suspended successfully!");
@@ -433,7 +433,7 @@ function ManageExecutive() {
         )
       );
       handleCloseModal();
-      console.log("Executive unSuspended successfully:", result);
+      // console.log("Executive unSuspended successfully:", result);
 
       // Show success toast
       toast.success("Executive unSuspended successfully!");
@@ -478,12 +478,14 @@ function ManageExecutive() {
         >
           Requests
         </button>
-        {/* <button
-          className="d-flex align-items-center addnew"
-          onClick={() => setShowExecutiveModal(true)}
-        >
-          <FaPlus className="me-2" /> New Employee
-        </button> */}
+        {localStorage.getItem("Bestie_role")?.includes("hr_executive") && (
+          <button
+            className="d-flex align-items-center addnew"
+            onClick={() => setShowExecutiveModal(true)}
+          >
+            <FaPlus className="me-2" /> New Employee
+          </button>
+        )}
       </p>
 
       <div className="d-flex align-items-start mb-3 gap-3 justify-content-between">
@@ -824,7 +826,7 @@ function ManageExecutive() {
                   style={{ color: "black" }}
                   className="text-start"
                   onClick={() =>
-                    handleUnbanExecutive(selectedEmployee.executive_id)
+                    handleUnbanExecutive(selectedEmployee.id)
                   }
                 >
                   <FaUserCheck className="me-2" /> Unban Employee
@@ -846,7 +848,7 @@ function ManageExecutive() {
         </Modal>
       )}
 
-      {/* Sort Modal */}
+     
       <Modal
         show={showActionModal}
         onHide={() => setShowActionModal(false)}

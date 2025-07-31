@@ -25,6 +25,8 @@ function Login() {
   
     try {
       const response = await adminLogin({ email, password });
+
+
       console.log(response);
   
       setSuccessMessage("Login successful!");
@@ -38,9 +40,9 @@ function Login() {
       if (response.role === "superuser") {
         navigate("/");
       } else if (response.role === "manager_executive") {
-        navigate("/manage-executive");
-      } else if (response.role === "manager_user") {
-        navigate("/manage-user");
+        navigate("/managerdashboard");
+      } else if (response.role === "hr_executive") {
+        navigate("/managerdashboard");
       }
     } catch (error) {
       setErrorMessage("Invalid email or password");
@@ -54,7 +56,7 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-wrapper">
-        <p className="login-brand">Bestie</p>
+        <p className="login-brand">Voicy</p>
         <form className="login-form" onSubmit={handleLogin}>
           <div className="login-input-container">
             <i style={{ fontStyle: 'normal' }} className="login-icon login-icon-user"></i>

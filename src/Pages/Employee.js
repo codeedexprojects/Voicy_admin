@@ -60,27 +60,28 @@ function Employee() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [selectedExecutive, setSelectedExecutive] = useState(null);
   const [avatarRequests, setAvatarRequests] = useState([]);
-  useEffect(() => {
-    const fetchAvatarRequests = async () => {
-      try {
-        const requestStatuses = await Promise.all(
-          paginatedExecutives.map(async (executive) => {
-            const data = await profileRequest(executive.executive_id);
-            return data.hasRequest ? executive.executive_id : null;
-          })
-        );
 
-        // Filter out null values and set avatar requests
-        setAvatarRequests(requestStatuses.filter(Boolean));
-      } catch (error) {
-        console.error("Error fetching profile requests:", error.message);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchAvatarRequests = async () => {
+  //     try {
+  //       const requestStatuses = await Promise.all(
+  //         paginatedExecutives.map(async (executive) => {
+  //           const data = await profileRequest(executive.executive_id);
+  //           console.log("profiles",data);
+  //           return data.profile_photo_url === "waiting for approval" ? executive.executive_id : null;
+  //         })
+  //       );
 
-    if (paginatedExecutives.length > 0) {
-      fetchAvatarRequests();
-    }
-  }, [paginatedExecutives]);
+  //       // Filter out null values and set avatar requests
+  //       setAvatarRequests(requestStatuses.filter(Boolean));
+  //     } catch (error) {
+  //       console.error("Error fetching profile requests:", error.message);
+  //     }
+  //   };
+  //   if (paginatedExecutives.length > 0) {
+  //     fetchAvatarRequests();
+  //   }
+  // }, [paginatedExecutives]);
 
   const handleAvatarClick = async (executive) => {
     try {
@@ -116,83 +117,102 @@ function Employee() {
     setSelectedExecutive(null);
   };
 
-const handleApprove = async (id) => {
-  try {
-    const formData = new FormData();
-    formData.append("status", "approved");
+  const handleApprove = async (id) => {
+    try {
+      const formData = new FormData();
+      formData.append("status", "approved");
 
-    const response = await approveandrejectprofile(id, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      const response = await approveandrejectprofile(id, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    console.log("Approve Response:", response);
+      // console.log("Approve Response:", response);
 
-    if (response.status === "approved") {
-      toast.success(response.detail || "Profile request approved successfully!");
-      setShowRequestModal(false);
-    } else {
-      toast.error(response.detail || "Failed to approve the profile request.");
+      if (response.status === "approved") {
+        toast.success(
+          response.detail || "Profile request approved successfully!"
+        );
+        setShowRequestModal(false);
+      } else {
+        toast.error(
+          response.detail || "Failed to approve the profile request."
+        );
+      }
+    } catch (error) {
+      console.error("Error approving profile request:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong while approving the request."
+      );
     }
-  } catch (error) {
-    console.error("Error approving profile request:", error);
-    toast.error(
-      error?.response?.data?.message ||
-      error?.message ||
-      "Something went wrong while approving the request."
-    );
-  }
-};
+  };
 
-const handleDecline = async (id) => {
-  try {
-    const formData = new FormData();
-    formData.append("status", "rejected");
+  const handleDecline = async (id) => {
+    try {
+      const formData = new FormData();
+      formData.append("status", "rejected");
 
-    const response = await approveandrejectprofile(id, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      const response = await approveandrejectprofile(id, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    console.log("Decline Response:", response); 
+      // console.log("Decline Response:", response);
 
-   if (response.status === "rejected") {
-  toast.success(response.detail || "Profile request declined successfully!");
-  setShowRequestModal(false);
-} else {
-  toast.error(response.detail || "Failed to decline the profile request.");
-}
-
-  } catch (error) {
-    console.error("Error declining profile request:", error); 
-    toast.error(
-      error?.response?.data?.message ||
-      error?.message ||
-      "Something went wrong while declining the request."
-    );
-  }
-};
+      if (response.status === "rejected") {
+        toast.success(
+          response.detail || "Profile request declined successfully!"
+        );
+        setShowRequestModal(false);
+      } else {
+        toast.error(
+          response.detail || "Failed to decline the profile request."
+        );
+      }
+    } catch (error) {
+      console.error("Error declining profile request:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong while declining the request."
+      );
+    }
+  };
 
   const totalPages = Math.ceil(filteredExecutives.length / itemsPerPage);
 
   useEffect(() => {
     const fetchExecutives = async () => {
       try {
-        const data = await getAllExecutives();
-        console.log("all executives",data);
-        
-        const status = await getExecutiveStatistics();
-        setstatus(status);
+        const data = await getAllExecutives(); 
+        console.log("all executives", data);
+
+        // Filter for executives with a "waiting for approval" profile
+        const requestIds = data
+          .filter(
+            (executive) =>
+              executive.profile_photo_url === "waiting for approval"
+          )
+          .map((executive) => executive.executive_id);
+
+        setAvatarRequests(requestIds); // Set for badge display
         setExecutives(data);
         setFilteredExecutives(data);
+
+        const status = await getExecutiveStatistics(); // Additional stats if needed
+        setstatus(status);
+
         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
       }
     };
+
     fetchExecutives();
   }, []);
 
@@ -324,7 +344,7 @@ const handleDecline = async (id) => {
       );
       handleCloseModal();
       // console.log("Executive banned successfully:", result);
-      console.log("Executive banned successfully:", result);
+      // console.log("Executive banned successfully:", result);
 
       // Show success toast
       toast.success("Executive banned successfully!");
@@ -348,7 +368,7 @@ const handleDecline = async (id) => {
         )
       );
       handleCloseModal();
-      console.log("Executive unbanned successfully:", result);
+      // console.log("Executive unbanned successfully:", result);
 
       // Show success toast
       toast.success("Executive unbanned successfully!");
@@ -374,7 +394,7 @@ const handleDecline = async (id) => {
       });
 
       handleCloseModal();
-      console.log("Executive online successfully:", result);
+      // console.log("Executive online successfully:", result);
       toast.success("Executive set online successfully!");
     } catch (err) {
       console.error("Error setting executive online:", err.message);
@@ -397,7 +417,7 @@ const handleDecline = async (id) => {
       });
 
       handleCloseModal();
-      console.log("Executive offline successfully:", result);
+      // console.log("Executive offline successfully:", result);
       toast.success("Executive set offline successfully!");
     } catch (err) {
       console.error("Error setting executive offline:", err.message);
@@ -417,7 +437,7 @@ const handleDecline = async (id) => {
         )
       );
       handleCloseModal();
-      console.log("Executive suspended successfully:", result);
+      // console.log("Executive suspended successfully:", result);
 
       // Show success toast
       toast.success("Executive Suspended successfully!");
@@ -441,7 +461,7 @@ const handleDecline = async (id) => {
         )
       );
       handleCloseModal();
-      console.log("Executive unSuspended successfully:", result);
+      // console.log("Executive unSuspended successfully:", result);
 
       // Show success toast
       toast.success("Executive unSuspended successfully!");
@@ -465,7 +485,6 @@ const handleDecline = async (id) => {
       Banned: executive.is_banned ? "Yes" : "No",
     }));
 
-    // Create a new workbook and a worksheet
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
 
@@ -510,21 +529,7 @@ const handleDecline = async (id) => {
               }}
             />
           </Form.Group>
-          {/* <Dropdown>
-  <Dropdown.Toggle
-    className="custom-button d-flex align-items-center px-3 py-2"
-    id="filter-dropdown"
-  >
-    <span className="me-2">💻</span>
-    {dropdownFilter === 'All' ? 'All Executives' : dropdownFilter}
-  </Dropdown.Toggle>
-
-  <Dropdown.Menu>
-    <Dropdown.Item onClick={() => handleDropdownSelect('All')}>Show All</Dropdown.Item>
-    <Dropdown.Item onClick={() => handleDropdownSelect('Online')}>Online</Dropdown.Item>
-    <Dropdown.Item onClick={() => handleDropdownSelect('Offline')}>Offline</Dropdown.Item>
-  </Dropdown.Menu>
-</Dropdown> */}
+        
           <Form.Group>
             <Form.Label>&nbsp;</Form.Label>
             <Button onClick={handleSearch} variant="success" className="w-100">
@@ -563,16 +568,16 @@ const handleDecline = async (id) => {
               <p>Inactive</p>
               <div className="d-flex align-items-center justify-content-center">
                 <i className="bi bi-x-circle-fill text-danger me-2"></i>
-                <span className="text-danger">{status.inactive_executives}</span>
+                <span className="text-danger">
+                  {status.inactive_executives}
+                </span>
               </div>
             </Col>
             <Col className="summary-item">
               <p>Active</p>
               <div className="d-flex align-items-center justify-content-center">
                 <i className="bi bi-check-circle-fill text-success me-2"></i>
-                <span className="text-success">
-                  {status.active_executives}
-                </span>
+                <span className="text-success">{status.active_executives}</span>
               </div>
             </Col>
           </Row>
@@ -597,9 +602,6 @@ const handleDecline = async (id) => {
             >
               <div className="d-flex justify-content-between align-items-center p-2 position-relative">
                 <div className="badge-container">
-                  {avatarRequests.includes(executive.executive_id) && (
-                    <span className="badge bg-primary me-2">Request</span>
-                  )}
                   {executive.is_banned && (
                     <span className="badge bg-danger me-2">Banned</span>
                   )}
@@ -624,31 +626,46 @@ const handleDecline = async (id) => {
                 />
               </div>
               <div
-                className="card-header d-flex justify-content-start align-items-center position-relative"
+                className="card-header d-flex justify-content-start align-items-center"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleAvatarClick(executive);
                 }}
               >
-                <img
-                  src={
-                    executive.img || "https://i.postimg.cc/Y9LvbvTZ/Avatar.png"
-                  }
-                  alt={executive.name}
-                  className="employee-img-rectangle"
-                />
-                {executive.has_update_request && (
-                  <span className="badge bg-info position-absolute top-0 start-0">
-                    Request
-                  </span>
-                )}
-                <div className="d-flex flex-column align-items-start ml-2 ms-2">
+                <div className="position-relative">
+                  <img
+                    src={
+                      executive.img ||
+                      "https://i.postimg.cc/Y9LvbvTZ/Avatar.png"
+                    }
+                    alt={executive.name}
+                    className="employee-img-rectangle"
+                  />
+
+                  {avatarRequests.includes(executive.executive_id) && (
+                    <span
+                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      style={{ fontSize: "10px" }}
+                    >
+                      !
+                    </span>
+                  )}
+
+                  {executive.has_update_request && (
+                    <span className="badge bg-info position-absolute top-0 start-0">
+                      Request
+                    </span>
+                  )}
+                </div>
+
+                <div className="d-flex flex-column align-items-start ms-2">
                   <p className="employee-name mb-0">{executive.name}</p>
                   <p className="text-muted small">
                     {executive.coins_per_second} Coin/Sec
                   </p>
                 </div>
               </div>
+
               <Card.Body
                 style={{
                   padding: "13px",
@@ -832,7 +849,7 @@ const handleDecline = async (id) => {
                   style={{ color: "black" }}
                   className="text-start"
                   onClick={() =>
-                    handleUnbanExecutive(selectedEmployee.executive_id)
+                    handleUnbanExecutive(selectedEmployee.id)
                   }
                 >
                   <FaUserCheck className="me-2" /> Unban Employee
@@ -843,7 +860,7 @@ const handleDecline = async (id) => {
                   style={{ color: "black" }}
                   className="text-start"
                   onClick={() =>
-                    handleBanExecutive(selectedEmployee.executive_id)
+                    handleBanExecutive(selectedEmployee.id)
                   }
                 >
                   <FaBan className="me-2" /> Ban Employee

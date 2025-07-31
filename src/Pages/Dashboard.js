@@ -20,7 +20,7 @@ import {
   Bar,
   BarChart,
 } from "recharts";
-import { BsGearFill, BsPersonCircle } from "react-icons/bs";
+import { BsPersonCircle } from "react-icons/bs";
 import people from "../People_Users_White_Icon_PNG-removebg-preview.png";
 import wallet from "../15479354-removebg-preview.png";
 import Coin from "../3840x2400-80933273-cube-sign-illustration-vector-white-icon-with-soft-shadow-on-transparent-background__1_-removebg-preview.png";
@@ -30,6 +30,7 @@ import {
   getCallstatisticsmonthly,
   getFullReport,
   getRevenue,
+  getAdminPurchase,
 } from "../services/allApi";
 import CountUp from "react-countup";
 import { FaFileExcel } from "react-icons/fa";
@@ -68,6 +69,7 @@ const Dashboard = () => {
   const [view, setView] = useState("Weekly");
   const [chartType, setChartType] = useState("Line");
   const [statistics, setStatistics] = useState([]);
+  const [adminPurchase, setAdminPurchase] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -92,7 +94,7 @@ const Dashboard = () => {
           data = await getCallstatistics();
 
           setChartData(data.weekly); // Access the weekly data
-          console.log("call", data);
+          // console.log("call", data);
         } else if (view === "Monthly") {
           data = await getCallstatisticsmonthly();
           setChartData(data.monthly); // Assuming the monthly data is in the correct format
@@ -120,6 +122,35 @@ const Dashboard = () => {
         Value: updatedRevenue.target_revenue,
       },
       {
+        Title: "Today Talktime",
+        Value: statistics.today_talk_time || 0,
+
+      },
+      {
+        Title: "Today Total Calls",
+        Value: statistics.today_total_calls || 0,
+      },
+      {
+        Title: "Today Coin Sales",
+        Value: statistics.coin_sales_today || 0,
+      },
+      {
+        Title: "Active Executives",
+        Value: statistics.active_executives || 0,
+      },
+      {
+        Title: "Active Users",
+        Value: statistics.active_users || 0,
+      },
+      {
+        Title: "On Call",
+        Value: statistics.on_call || 0,
+      },
+      {
+        Title: "Today Missed Calls",
+        Value: updatedRevenue.missed_calls_today,
+      },
+      {
         Title: "Target Talktime",
         Value: updatedRevenue.target_talktime,
       },
@@ -128,28 +159,49 @@ const Dashboard = () => {
         Value: revenue.covered_revenue,
       },
       {
+        Title: "Total Calls",
+        value: revenue.total_calls,
+      },
+      {
         Title: "Total Talktime",
         Value: revenue.covered_talktime,
       },
+      {
+        Title: "Total Coin Sales",
+        Value: revenue.coin_sales_all_time,
+      },
+      {
+        Title: "All time Revenue",
+        Value: revenue.revenue_all_time,
+      },
+      {
+        Title: "Total Admin Spent",
+        Value: adminPurchase.total_admin_spent || 0,
+      },
+      {
+        Title: "Total Missed Calls",
+        Value: statistics.total_missed_calls || 0,
+      }
+
     ];
-  
+
     const ws = XLSX.utils.json_to_sheet(metricsData);
-  
+
     // Auto adjust column width
     ws["!cols"] = [
       { wch: 25 }, // Column 1 width
       { wch: 15 }, // Column 2 width
     ];
-  
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Metrics Data");
-  
+
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  
+
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-  
+
     saveAs(blob, "metrics_data.xlsx");
   };
 
@@ -157,7 +209,7 @@ const Dashboard = () => {
     const fetchRevenue = async () => {
       try {
         const data = await getRevenue();
-        console.log(data, "Fetched revenue data");
+        // console.log(data, "Fetched revenue data");
 
         // Directly set the revenue with the fetched data
         setRevenue(data);
@@ -168,6 +220,18 @@ const Dashboard = () => {
       }
     };
     fetchRevenue();
+  }, []);
+  useEffect(() => {
+    const fetchAdminPurchase = async () => {
+      try {
+        const data = await getAdminPurchase();
+        console.log("Admin Purchase Data:", data);
+        setAdminPurchase(data);
+      } catch (err) {
+        console.error("Error fetching admin purchase data:", err);
+      }
+    };
+    fetchAdminPurchase();
   }, []);
 
   const [isEditable, setIsEditable] = useState(false);
@@ -234,7 +298,7 @@ const Dashboard = () => {
     const fetchStatistics = async () => {
       try {
         const data = await getFullReport();
-        console.log("dstatistica", data);
+        // console.log("dstatistica", data);
 
         setStatistics(data);
         setLoading(false);
@@ -290,7 +354,7 @@ const Dashboard = () => {
     },
     {
       title: "Today's Revenue",
-      value: statistics.todays_revenue,
+      value: statistics.revenue_today,
       icon: (
         <img
           src={wallet}
@@ -301,9 +365,24 @@ const Dashboard = () => {
       iconBg: "#FFDB45",
       outerBg: "#FFF8DA",
     },
+
+     {
+      title: "Total Revenue",
+      value: statistics.revenue_all_time,
+      icon: (
+        <img
+          src={wallet}
+          alt="Total Revenue"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+    },
+
     {
       title: "Today's Coin Sales",
-      value: statistics.todays_coin_sales,
+      value: statistics.coin_sales_today,
       icon: (
         <img
           src={Coin}
@@ -314,6 +393,19 @@ const Dashboard = () => {
       iconBg: "#F04B69",
       outerBg: "#FDEDF0",
     },
+     {
+      title: "Total Coin Sales",
+      value: statistics.coin_sales_all_time,
+      icon: (
+        <img
+          src={Coin}
+          alt="Total Coin Sales"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#F04B69",
+      outerBg: "#FDEDF0",
+    }
   ];
 
   const activeMetrics = [
@@ -351,9 +443,65 @@ const Dashboard = () => {
       outerBg: "#FFF8DA",
       navigateTo: "/on-call",
     },
+      {
+      title: "Today Total Calls",
+      value: statistics.today_total_calls,
+      icon: (
+        <img
+          src={wallet}
+          alt="On Call"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+      // navigateTo: "/on-call",
+    },
+    
+    
+    {
+      title: "Total Calls",
+      value: statistics.total_calls,
+      icon: (
+        <img
+          src={wallet}
+          alt="On Call"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+      // navigateTo: "/on-call",
+    },
     {
       title: "Total Talk Time",
       value: statistics.total_talk_time,
+      icon: (
+        <img
+          src={Coin}
+          alt="Total Talk Time"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#F04B69",
+      outerBg: "#FDEDF0",
+    },
+     {
+      title: "Today TalkTime",
+      value: statistics.today_talk_time,
+      icon: (
+        <img
+          src={Coin}
+          alt="Today Talk Time"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#F04B69",
+      outerBg: "#FDEDF0",
+    },
+     {
+      title: "Today Missed Calls",
+      value: statistics.missed_calls_today,
       icon: (
         <img
           src={Coin}
@@ -377,13 +525,30 @@ const Dashboard = () => {
       iconBg: "#F04B69",
       outerBg: "#FDEDF0",
     },
+    {
+      title: "Total Admin Spent",
+      value: adminPurchase.total_admin_spent,
+      icon: (
+        <img
+          src={wallet}
+          alt="On Call"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+      navigateTo: "/account",
+    },
   ];
 
-  const handleCardClick = (title) => {
-    if (title === "On Call") {
-      navigate("/activities");
-    }
-  };
+// In your Dashboard component where you handle the navigation:
+const handleCardClick = (metric) => {
+  if (metric.title === "Total Admin Spent") {
+    navigate('/account', { state: { showAdminOnly: true } });
+  } else if (metric.title === "On Call") {
+    navigate('/activities');
+  }
+};
 
   const MetricCard = ({ metric }) => (
     <Col
@@ -400,7 +565,7 @@ const Dashboard = () => {
           maxWidth: "160px",
           cursor: metric.navigateTo ? "pointer" : "default",
         }}
-        onClick={() => handleCardClick(metric.title)}
+        onClick={() => metric.onClick ? metric.onClick() : handleCardClick(metric)}
       >
         <Card.Body className="d-flex flex-column align-items-center text-center py-3">
           <div
@@ -519,14 +684,14 @@ const Dashboard = () => {
               style={{ padding: "0px" }}
               className="d-flex align-items-center justify-content-between"
             > */}
-              {/* <div className="d-flex align-items-center">
+      {/* <div className="d-flex align-items-center">
                 <BsPersonCircle size={40} color="#5065F6" />
                 <div className="ms-3">
                   <h5>User Roles & Permissions</h5>
                   <p>Manage all user roles and their permissions effectively</p>
                 </div>
               </div> */}
-              {/* <div
+      {/* <div
                 className="manage-roles-container d-flex align-items-center"
                 onClick={() => (window.location.href = "/roles")}
                 style={{
@@ -547,7 +712,7 @@ const Dashboard = () => {
                 <BsGearFill style={{ marginRight: "5px" }} />
                 <span style={{ fontWeight: "bold" }}>Manage Roles</span>
               </div> */}
-            {/* </Card.Body>
+      {/* </Card.Body>
           </Card>
         </Col>
       </Row> */}

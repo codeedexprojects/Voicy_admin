@@ -22,6 +22,7 @@ import {
   getUsercallRating,
   getusercoinbalance,
   getusercoinspend,
+  getUserRefferal,
 } from "../services/allApi";
 import { toast, ToastContainer } from "react-toastify";
 import { FaDownload } from "react-icons/fa";
@@ -33,6 +34,8 @@ function UserDetails() {
   const { id, user_id } = useParams();
   const [user, setUser] = useState(null);
   const [statistics, setStatistics] = useState(null);
+   const [referralData, setReferralData] = useState(null);
+  const [referralLoading, setReferralLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,18 +47,18 @@ function UserDetails() {
   const [callHistory, setCallHistory] = useState([]);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
-  const [coin, setCoin] = useState(0); // State for the coin count
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [coinSpend, setCoinSpend] = useState(0); // State for the coin count
+  const [coin, setCoin] = useState(0);
+  const [showModal, setShowModal] = useState(false); 
+  const [coinSpend, setCoinSpend] = useState(0); 
   const [packages, setPackages] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [coinBalance, setCoinBalance] = useState(0); // State for the coin count
+  const [coinBalance, setCoinBalance] = useState(0); 
   const [ratings, setRatings] = useState([]);
 
   const handleRemove = async () => {
     try {
       const result = await deleteSingleUser(id);
-      console.log(result.message);
+      // console.log(result.message);
 
       // Show the toast message
       toast.success("User removed successfully!", { autoClose: 3000 });
@@ -127,7 +130,7 @@ function UserDetails() {
     getusercoinbalance(id)
       .then((response) => {
         setCoinBalance(response.coin_balance);
-        console.log("coinspend", response);
+        // console.log("coinspend", response);
 
         setLoading(false);
       })
@@ -136,11 +139,26 @@ function UserDetails() {
         console.error(err);
       });
   }, []);
+const fetchReferralData = async () => {
+    setReferralLoading(true);
+    try {
+      const data = await getUserRefferal(id);
+      setReferralData(data);
+    } catch (error) {
+      console.error("Error fetching referral data:", error);
+    } finally {
+      setReferralLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchReferralData();
+  }, [id]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const packagedata = await getPackage(); // Fetch package data
+        const packagedata = await getPackage(); 
+        // console.log(packagedata)
         setPackages(packagedata);
         if (packagedata.length > 0) {
           setSelectedPackage(packagedata[0].id); // Set default selected package
@@ -162,9 +180,9 @@ function UserDetails() {
     }
 
     try {
-      await Addcoinuser(id, selectedPackage); // Ensure correct arguments
+      await Addcoinuser(id, selectedPackage,{ is_admin: true }); 
       toast.success("Coins added successfully");
-      setShowModal(false); // Close modal after successful action
+      setShowModal(false); 
     } catch (err) {
       setError("Failed to add coins");
     } finally {
@@ -190,7 +208,7 @@ function UserDetails() {
   
       try {
         const callHistoryData = await getuserCallHistory(id, page, ITEMS_PER_PAGE);
-        console.log("callHistoryData:", callHistoryData);
+        // console.log("callHistoryData:", callHistoryData);
       
         if (Array.isArray(callHistoryData)) {
           setCallHistory(callHistoryData);
@@ -388,7 +406,7 @@ function UserDetails() {
               style={{ background: "white" }}
               type="text"
               id="employeeID"
-              className="form-control" // Add Bootstrap class for styling
+              className="form-control" 
               placeholder={user?.user_id || "N/A"}
               disabled
             />
@@ -441,7 +459,7 @@ function UserDetails() {
                   <MDBCardText className="mb-0" style={{ marginBottom: "0" }}>
                     <h4>
                       <CurrencyRupeeTwoToneIcon />
-                      {statistics?.Total_Purchases || "0"}
+                      {statistics?.total_purchases || "0"}
                     </h4>
                   </MDBCardText>
                 </div>
@@ -532,6 +550,34 @@ function UserDetails() {
               </MDBCardBody>
             </MDBCard>
           </div>
+
+            <div className="col-md-3 col-12 mt-3">
+            <MDBCard className="card" style={{ height: "100%" }}>
+              <MDBCardBody
+                className="cardBody"
+                style={{
+                  padding: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  alt=""
+                  className="cardImg"
+                  src="https://cdn1.iconfinder.com/data/icons/jetflat-multimedia-vol-4/90/0042_083_favorite_star_rate-1024.png"
+                  style={{ width: "40px", height: "40px", marginRight: "1rem" }}
+                />
+                <div style={{ flex: 1 }}>
+                  <MDBCardTitle className="cardTitle">
+                    Joining Bonus
+                  </MDBCardTitle>
+                  <MDBCardText className="mb-0" style={{ marginBottom: "0" }}>
+                    <h4>1000</h4>
+                  </MDBCardText>
+                </div>
+              </MDBCardBody>
+            </MDBCard>
+          </div>
         </div>
 
         <div className="col-md-4 col-12 my-4"></div>
@@ -570,6 +616,7 @@ function UserDetails() {
       <td>User ID</td>
       <td>Start Time</td>
       <td>Duration</td>
+      <td>Coin Deducted</td>
       <td>End Time</td>
       <td>Status</td>
     </tr>
@@ -586,9 +633,10 @@ function UserDetails() {
       currentData.map((item, index) => (
         <tr key={index}>
           <td>{item.executive?.name || "N/A"}</td>
-          <td>{item.user?.id || "N/A"}</td>
+          <td>{item.user?.user_id || "N/A"}</td>
           <td>{item.formatted_start_time || "N/A"}</td>
           <td>{item.formatted_duration || "N/A"}</td>
+          <td>{item.coins_deducted || "N/A"}</td>         
           <td>{item.formatted_end_time || "N/A"}</td>
           <td>{item.status || "N/A"}</td>
         </tr>
@@ -730,6 +778,66 @@ function UserDetails() {
             ))
           )}
         </div>
+
+
+       {/* Referral Information Section */}
+<p
+  className="d-flex justify-content-between align-items-center"
+  style={{ fontSize: "28px", marginTop: "30px" }}
+>
+  Referral History
+</p>
+
+{referralLoading ? (
+  <div className="text-center">
+    <Spinner animation="border" />
+  </div>
+) : referralData ? (
+  <div className="row">
+    <div className="col-12">
+      <MDBCard className="mb-4">
+        <MDBCardBody>
+          {/* Main Referral Info Table */}
+        
+          {referralData.referral_history?.length > 0 ? (
+            <Table striped bordered hover responsive>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Referred User ID</th>
+                  <th>Referrer User ID</th>
+                  <th>Coins Earned</th>
+                </tr>
+              </thead>
+              <tbody>
+                {referralData.referral_history.map((history, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{history.referred_user_id || "N/A"}</td>
+                    <td>{history.referrer_user_id || "N/A"}</td>
+                    <td>
+                      <CurrencyRupeeTwoToneIcon fontSize="small" />
+                      {history.referral_amount || "0"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          ) : (
+            <div className="text-center py-3">
+              <p className="text-muted">No referral history available</p>
+            </div>
+          )}
+        </MDBCardBody>
+      </MDBCard>
+    </div>
+  </div>
+) : (
+  <div className="text-center py-3">
+    <p className="text-muted">No referral data available</p>
+  </div>
+)}
+
         <Modal
           show={open}
           onHide={handleClose}
