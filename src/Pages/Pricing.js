@@ -8,6 +8,7 @@ import {
   Button,
   Form,
   Spinner,
+  Badge,
 } from "react-bootstrap";
 import {
   AddPackage,
@@ -32,15 +33,16 @@ function Pricing() {
     setSelectedPackageId(packageId);
     setShowDeleteModal(true);
   };
+  
   const handleDeletePackage = async () => {
     try {
-  
       await DeletePackage(selectedPackageId);
-  
-      toast.success("Package deleted successfully!", { autoClose: 2000, onClose: async () => {
-        await fetchPackages(); 
-      }});
-  
+      toast.success("Package deleted successfully!", { 
+        autoClose: 2000, 
+        onClose: async () => {
+          await fetchPackages(); 
+        }
+      });
       setShowDeleteModal(false);
     } catch (error) {
       toast.error(`Error deleting package: ${error.message}`, { autoClose: 3000 });
@@ -60,35 +62,39 @@ function Pricing() {
 
     fetchCategories();
   }, []);
+
   const [formData, setFormData] = useState({
     plan_name: "",
     base_price: "",
     coin_package: "",
     discount_percentage: "",
     category_id: "",
+    is_active: true, // Added is_active field
   });
 
-const handleShowModal = (cardId, data) => {
-  setSelectedCard(cardId);
-  if (cardId) {
-    // Find category ID by matching the name
-    const category = categories.find(cat => cat.name === data.category_name);
-    setFormData({ 
-      ...data, 
-      category_id: category ? category.id : "",
-      coin_package: data.coin_package || data.adjusted_coin_package 
-    });
-  } else {
-    setFormData({
-      plan_name: "",
-      base_price: "",
-      adjusted_coin_package: "",
-      discount_percentage: "",
-      category_id: categories.length > 0 ? categories[0].id : ""
-    });
-  }
-  setShowModal(true);
-};
+  const handleShowModal = (cardId, data) => {
+    setSelectedCard(cardId);
+    if (cardId) {
+      // Find category ID by matching the name
+      const category = categories.find(cat => cat.name === data.category_name);
+      setFormData({ 
+        ...data, 
+        category_id: category ? category.id : "",
+        coin_package: data.coin_package || data.adjusted_coin_package,
+        is_active: data.is_active !== undefined ? data.is_active : true // Include is_active
+      });
+    } else {
+      setFormData({
+        plan_name: "",
+        base_price: "",
+        adjusted_coin_package: "",
+        discount_percentage: "",
+        category_id: categories.length > 0 ? categories[0].id : "",
+        is_active: true // Default to active for new packages
+      });
+    }
+    setShowModal(true);
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -99,62 +105,60 @@ const handleShowModal = (cardId, data) => {
       coin_package: "",
       discount_percentage: "",
       category_id: categories.length > 0 ? categories[0].id : "",
+      is_active: true,
     });
   };
 
- const handleSaveChanges = async () => {
-  try {
-    // console.log("formData before saving:", formData);
+  const handleSaveChanges = async () => {
+    try {
+      if (
+        !formData.plan_name ||
+        !formData.coin_package ||
+        !formData.base_price || 
+        !formData.category_id
+      ) {
+        console.error("All fields are required");
+        toast.error("All fields are required!");
+        return;
+      }
 
-    if (
-      !formData.plan_name ||
-      !formData.coin_package ||
-      !formData.base_price || 
-      !formData.category_id
-    ) {
-      console.error("All fields are required");
-      toast.error("All fields are required!");
-      return;
+      // Validate discount percentage if provided
+      if (formData.discount_percentage && 
+          (isNaN(formData.discount_percentage) || 
+           formData.discount_percentage < 0 || 
+           formData.discount_percentage > 100)) {
+        toast.error("Discount percentage must be a number between 0 and 100!");
+        return;
+      }
+
+      const dataToSubmit = { ...formData }; 
+
+      if (!dataToSubmit.discount_percentage) {
+        delete dataToSubmit.discount_percentage;
+      }
+
+      if (selectedCard) {
+        await EditPackage(selectedCard, dataToSubmit);
+        toast.success("Package updated successfully!");
+        await fetchPackages();
+      } else {
+        await AddPackage(dataToSubmit);
+        toast.success("Package added successfully!");
+        await fetchPackages();
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving changes:", error.message);
+      toast.error(`Error saving changes: ${error.message}`);
     }
-
-    // Validate discount percentage if provided
-    if (formData.discount_percentage && 
-        (isNaN(formData.discount_percentage) || 
-         formData.discount_percentage < 0 || 
-         formData.discount_percentage > 100)) {
-      toast.error("Discount percentage must be a number between 0 and 100!");
-      return;
-    }
-
-    const dataToSubmit = { ...formData }; 
-
-    if (!dataToSubmit.discount_percentage) {
-      delete dataToSubmit.discount_percentage;
-    }
-
-    if (selectedCard) {
-      await EditPackage(selectedCard, dataToSubmit);
-      // console.log("Package updated successfully");
-      toast.success("Package updated successfully!");
-      await fetchPackages();
-    } else {
-      await AddPackage(dataToSubmit);
-      // console.log("Package added successfully");
-      toast.success("Package added successfully!");
-      await fetchPackages();
-    }
-
-    handleCloseModal();
-  } catch (error) {
-    console.error("Error saving changes:", error.message);
-    toast.error(`Error saving changes: ${error.message}`);
-  }
-};
+  };
 
   const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: type === 'checkbox' ? checked : value,
     });
   };
 
@@ -162,8 +166,7 @@ const handleShowModal = (cardId, data) => {
     try {
       setLoading(true);
       const packageData = await getPackage();
-      // console.log(packageData);
-      
+      console.log(packageData);
       setPackages(packageData);
     } catch (error) {
       console.error("Error fetching packages:", error);
@@ -191,6 +194,7 @@ const handleShowModal = (cardId, data) => {
   if (error) {
     return <div className="text-danger">Error: {error}</div>;
   }
+
   return (
     <div className="container mt-5">
       <div className="d-flex justify-content-end mb-3">
@@ -215,10 +219,23 @@ const handleShowModal = (cardId, data) => {
           <Col lg={3} md={6} sm={12} key={pkg.id} className="mb-4">
             <Card className="shadow-sm">
               <Card.Body>
-                <div className="d-flex justify-content-between">
-                  <Card.Title style={{ fontSize: "18px" }}>
-                    {pkg.plan_name}
-                  </Card.Title>
+                <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex flex-column">
+                    <Card.Title style={{ fontSize: "18px", marginBottom: "8px" }}>
+                      {pkg.plan_name}
+                    </Card.Title>
+                    {/* is_active Badge */}
+                    <Badge 
+                      bg={pkg.is_active ? "success" : "secondary"} 
+                      style={{ 
+                        fontSize: "10px", 
+                        width: "fit-content",
+                        marginBottom: "10px" 
+                      }}
+                    >
+                      {pkg.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
                   <Dropdown>
                     <Dropdown.Toggle
                       as={CustomToggle}
@@ -289,8 +306,8 @@ const handleShowModal = (cardId, data) => {
                       </div>
                     </Col>
                   </Row>
-                 <Row>
-                   <Col>
+                  <Row>
+                    <Col>
                       <div>
                         <p
                           style={{
@@ -311,8 +328,8 @@ const handleShowModal = (cardId, data) => {
                           {pkg.adjusted_coin_package}
                         </p>
                       </div>
-                   </Col>
-                   <Col>
+                    </Col>
+                    <Col>
                       <div>
                         <p
                           style={{
@@ -333,8 +350,8 @@ const handleShowModal = (cardId, data) => {
                           {pkg.category_name}
                         </p>
                       </div>
-                   </Col>
-                 </Row>
+                    </Col>
+                  </Row>
                 </div>
               </Card.Body>
             </Card>
@@ -367,16 +384,33 @@ const handleShowModal = (cardId, data) => {
                 placeholder="Enter plan name"
               />
             </Form.Group>
+            
             <Form.Group className="mb-3" controlId="formCategory">
-            <Form.Label>Category</Form.Label>
-            <Form.Control as="select" name="category_id" value={formData.category_id} onChange={handleInputChange}>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Category</Form.Label>
+              <Form.Control as="select" name="category_id" value={formData.category_id} onChange={handleInputChange}>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+
+            {/* is_active Checkbox */}
+            <Form.Group className="mb-3" controlId="formIsActive">
+              <Form.Check
+                type="checkbox"
+                name="is_active"
+                checked={formData.is_active}
+                onChange={handleInputChange}
+                label="Package is Active"
+                style={{ fontSize: "14px", color: "#323343" }}
+              />
+              <Form.Text className="text-muted">
+                Uncheck to deactivate this package
+              </Form.Text>
+            </Form.Group>
+            
             <Form.Group className="mb-3" controlId="formDiscountPercentage">
               <Form.Label style={{ fontSize: "14px", color: "#323343" }}>
                 Discount Percentage (Optional)
@@ -446,20 +480,21 @@ const handleShowModal = (cardId, data) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-  <Modal.Header closeButton>
-    <Modal.Title>Confirm Deletion</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>Are you sure you want to delete this package?</Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-      Cancel
-    </Button>
-    <Button variant="danger" onClick={handleDeletePackage}>
-      Delete
-    </Button>
-  </Modal.Footer>
-</Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this package?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeletePackage}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <ToastContainer></ToastContainer>
     </div>

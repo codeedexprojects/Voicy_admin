@@ -160,7 +160,31 @@ export const getAllUsers = async () => {
       throw error;
     }
   };
-  
+ export const getAllCalls = async (url = null, params = {}) => {
+  try {
+    const endpoint = url || `${BASE_URL}/api/view-call-history/`;
+    
+    // Add params to the URL if they exist
+    const queryString = Object.keys(params).length 
+      ? `?${new URLSearchParams(params).toString()}`
+      : '';
+    
+    const fullUrl = `${endpoint}${queryString}`;
+    
+    const response = await axios.get(fullUrl);
+    
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      throw new Error("Failed to fetch call data");
+    }
+  } catch (error) {
+    console.error("Error fetching call data:", error.message);
+    throw error;
+  }
+};
+
+
  // Function to delete a single user by ID
  export const deleteCarousel = async (imageId) => {
   try {

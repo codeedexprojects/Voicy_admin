@@ -3,7 +3,7 @@ import { getRefferalHistory } from '../services/allApi';
 import { Table, Form, Spinner, Pagination } from 'react-bootstrap';
 import { MDBCard, MDBCardBody } from 'mdb-react-ui-kit';
 import CurrencyRupeeTwoToneIcon from '@mui/icons-material/CurrencyRupeeTwoTone';
-import { FaSearch } from 'react-icons/fa';
+import { FaCoins, FaSearch } from 'react-icons/fa';
 
 function ReferralHistory() {
   const [referrals, setReferrals] = useState([]);
@@ -116,7 +116,7 @@ function ReferralHistory() {
                     <td>{referral.referrer_user_id}</td>
                     <td>{referral.referrer_mobile}</td>
                     <td>
-                      <CurrencyRupeeTwoToneIcon fontSize="small" />
+                      <FaCoins fontSize="small" />
                       {referral.referral_amount}
                     </td>
                   </tr>

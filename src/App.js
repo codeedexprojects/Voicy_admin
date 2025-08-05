@@ -37,6 +37,7 @@ import ManagerProfile from "./Pages/ManagerProfile";
 import BannedUsers from "./Pages/BannedUsers";
 import BlockedUsers from "./Pages/BlockedUsers";
 import ReferralHistory from "./Pages/ReferralHistory"
+import Calls from "./Pages/Calls";
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -104,6 +105,15 @@ function App() {
                 element={
                   <ProtectedRoute
                     element={<Dashboard />}
+                    requiredRole="superuser"
+                  />
+                }
+              ></Route>
+               <Route
+                path="/allcalls"
+                element={
+                  <ProtectedRoute
+                    element={<Calls />}
                     requiredRole="superuser"
                   />
                 }

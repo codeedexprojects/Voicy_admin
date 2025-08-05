@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table,  Button, Modal, Form, Card, Row, Col, Spinner, Dropdown } from "react-bootstrap";
+import { Table, Button, Modal, Form, Card, Row, Col, Spinner, Dropdown } from "react-bootstrap";
 import { FaEllipsisV, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { addCategory, deleteCategory, editcategory, getCategories } from "../services/allApi";
 import { toast, ToastContainer } from 'react-toastify';
-
 function Category() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +12,7 @@ function Category() {
   const [newCategory, setNewCategory] = useState("");
   const [editingCategory, setEditingCategory] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState("");
+  const [editIsActive, setEditIsActive] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState(null);
 
@@ -27,7 +27,6 @@ function Category() {
       const data = await getCategories();
       setCategories(data);
     } catch (err) {
-      // console.error("Failed to fetch categories:", err);
       setError("Failed to load categories. Please try again.");
       toast.error("Failed to load categories");
     } finally {
@@ -35,7 +34,6 @@ function Category() {
     }
   };
 
-  // Handle adding a new category
   const handleAddCategory = async () => {
     if (!newCategory.trim()) {
       toast.error("Please enter a category name");
@@ -43,21 +41,20 @@ function Category() {
     }
 
     try {
-      await addCategory({ name: newCategory.trim() });
-      fetchCategories(); // Refresh list after adding
+      await addCategory({ name: newCategory.trim(), is_active: true });
+      fetchCategories();
       setNewCategory("");
       setShowModal(false);
       toast.success("Category added successfully!");
     } catch (error) {
-      // console.error("Failed to add category:", error);
       toast.error("Failed to add category");
     }
   };
 
-  // Handle editing a category
   const handleEditCategory = (category) => {
     setEditingCategory(category);
     setEditCategoryName(category.name);
+    setEditIsActive(category.is_active);
     setShowEditModal(true);
   };
 
@@ -68,19 +65,20 @@ function Category() {
     }
 
     try {
-      await editcategory(editingCategory.id, { name: editCategoryName.trim() });
-      fetchCategories(); // Refresh list after editing
+      await editcategory(editingCategory.id, { 
+        name: editCategoryName.trim(),
+        is_active: editIsActive 
+      });
+      fetchCategories();
       setShowEditModal(false);
       setEditingCategory(null);
       setEditCategoryName("");
       toast.success("Category updated successfully!");
     } catch (error) {
-      // console.error("Failed to update category:", error);
       toast.error("Failed to update category");
     }
   };
 
-  // Handle deleting a category
   const handleDeleteCategory = (category) => {
     setDeletingCategory(category);
     setShowDeleteModal(true);
@@ -89,12 +87,11 @@ function Category() {
   const confirmDeleteCategory = async () => {
     try {
       await deleteCategory(deletingCategory.id);
-      fetchCategories(); // Refresh list after deleting
+      fetchCategories();
       setShowDeleteModal(false);
       setDeletingCategory(null);
       toast.success("Category deleted successfully!");
     } catch (error) {
-      // console.error("Failed to delete category:", error);
       toast.error("Failed to delete category");
     }
   };
@@ -182,9 +179,9 @@ function Category() {
                     fontSize: '12px',
                     fontWeight: 'bold',
                     color: '#fff',
-                    backgroundColor: '#28a745'
+                    backgroundColor: category.is_active ? '#28a745' : '#dc3545'
                   }}>
-                    Active
+                    {category.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </td>
                 <td>
@@ -249,7 +246,7 @@ function Category() {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="editCategoryName">
+            <Form.Group controlId="editCategoryName" className="mb-3">
               <Form.Label>Category Name</Form.Label>
               <Form.Control
                 type="text"
@@ -257,6 +254,14 @@ function Category() {
                 onChange={(e) => setEditCategoryName(e.target.value)}
                 placeholder="Enter category name"
                 onKeyPress={(e) => e.key === 'Enter' && handleUpdateCategory()}
+              />
+            </Form.Group>
+            <Form.Group controlId="editIsActive">
+              <Form.Check
+                type="switch"
+                label="Active Status"
+                checked={editIsActive}
+                onChange={(e) => setEditIsActive(e.target.checked)}
               />
             </Form.Group>
           </Form>

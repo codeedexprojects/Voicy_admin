@@ -9,6 +9,8 @@ import {
   FaBell,
   FaRupeeSign,
   FaCoins,
+ 
+  FaPhoneAlt,
 } from "react-icons/fa";
 import "./Sidebar.css";
 
@@ -39,6 +41,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
                 label: "Executives",
               },
               { path: "/userslist", icon: <FaUser />, label: "Users" },
+              { path: "/allcalls", icon: <FaPhoneAlt />, label: "Calls" },
               { path: "/referral", icon: <FaUser />, label: "Referral" },
               { path: "/review", icon: <FaFileAlt />, label: "Review" },
               { path: "/reports", icon: <FaFileAlt />, label: "Reports" },

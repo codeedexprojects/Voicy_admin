@@ -314,9 +314,11 @@ function Employee() {
       const genderMatch =
         executive.gender &&
         executive.gender.toLowerCase().includes(searchQuery.toLowerCase());
-
+  const idMatch =
+        executive.executive_id &&
+        executive.executive_id.toLowerCase().includes(searchQuery.toLowerCase());
       return (
-        nameMatch || phoneMatch || emailMatch || professionMatch || genderMatch
+        nameMatch || phoneMatch || emailMatch || professionMatch || genderMatch  || idMatch
       );
     });
 
@@ -600,31 +602,31 @@ function Employee() {
                 border: executive.online ? "2px solid green" : "2px solid gray",
               }}
             >
-              <div className="d-flex justify-content-between align-items-center p-2 position-relative">
-                <div className="badge-container">
-                  {executive.is_banned && (
-                    <span className="badge bg-danger me-2">Banned</span>
-                  )}
-                  {executive.is_suspended && (
-                    <span className="badge bg-warning">Suspended</span>
-                  )}
-                  <span
-                    className={`badge ${
-                      executive.online ? "bg-success" : "bg-secondary"
-                    } ms-2`}
-                  >
-                    {executive.online ? "Online" : "Offline"}
-                  </span>
-                </div>
-                <FaEllipsisV
-                  className="text-muted"
-                  style={{ cursor: "pointer" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShowModal(executive);
-                  }}
-                />
-              </div>
+             <div className="d-flex justify-content-between align-items-center p-2 position-relative">
+  <div className="badge-container">
+    {executive.is_banned && (
+      <span className="badge bg-danger me-2">Banned</span>
+    )}
+    {executive.is_suspended && (
+      <span className="badge bg-warning">Suspended</span>
+    )}
+    <span
+      className={`badge ${
+        executive.online ? "bg-success" : "bg-secondary"
+      } ms-2`}
+    >
+      {executive.on_call ? "Oncall" : executive.online ? "Online" : "Offline"}
+    </span>
+  </div>
+  <FaEllipsisV
+    className="text-muted"
+    style={{ cursor: "pointer" }}
+    onClick={(e) => {
+      e.stopPropagation();
+      handleShowModal(executive);
+    }}
+  />
+</div>
               <div
                 className="card-header d-flex justify-content-start align-items-center"
                 onClick={(e) => {
@@ -657,7 +659,6 @@ function Employee() {
                     </span>
                   )}
                 </div>
-
                 <div className="d-flex flex-column align-items-start ms-2">
                   <p className="employee-name mb-0">{executive.name}</p>
                   <p className="text-muted small">

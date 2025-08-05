@@ -181,7 +181,21 @@ const Dashboard = () => {
       {
         Title: "Total Missed Calls",
         Value: statistics.total_missed_calls || 0,
+      },
+      {
+        Title: "Total Referral Bonus",
+        Value: adminPurchase.total_coins_sold_refferel || 0,
+      },
+      {
+        Title: "Total Joining Bonus",
+        Value: statistics.total_missed_calls || 0,
+      },
+    
+      {
+        Title: "Total Admin Added Coins",
+        Value: statistics.total_coins_spent || 0,
       }
+
 
     ];
 
@@ -250,34 +264,30 @@ const Dashboard = () => {
     }
   }, [revenue]);
 
-  const handleEditClick = () => {
-    if (isEditable) {
-      // Save the updated data to the API
-      editRevenue(updatedRevenue)
-        .then((response) => {
-          // Update the state with the new values from the response
-          setRevenue({
-            ...revenue,
-            target_revenue:
-              response.data.target_revenue || updatedRevenue.target_revenue,
-            target_talktime:
-              response.data.target_talktime || updatedRevenue.target_talktime,
-          });
-          setIsEditable(false);
-
-          // Show success toast
-          toast.success("Target updated successfully!");
-        })
-        .catch((error) => {
-          console.error("Error updating Target:", error);
-
-          // Show error toast
-          toast.error("Failed to update Target!");
-        });
-    } else {
-      setIsEditable(true);
-    }
-  };
+const handleEditClick = () => {
+  if (isEditable) {
+    // Save the updated data to the API
+    editRevenue(updatedRevenue)
+      .then((response) => {
+        // Update both revenue and updatedRevenue states with the new values
+        setRevenue(prev => ({
+          ...prev,
+          target_revenue: updatedRevenue.target_revenue,
+          target_talktime: updatedRevenue.target_talktime,
+          // Keep other revenue properties the same
+        }));
+        
+        setIsEditable(false);
+        toast.success("Target updated successfully!");
+      })
+      .catch((error) => {
+        console.error("Error updating Target:", error);
+        toast.error("Failed to update Target!");
+      });
+  } else {
+    setIsEditable(true);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -539,6 +549,46 @@ const Dashboard = () => {
       outerBg: "#FFF8DA",
       navigateTo: "/account",
     },
+      {
+      title: "Total Referral Bonus",
+      value: adminPurchase.total_coins_sold_refferel,
+      icon: (
+        <img
+          src={wallet}
+          alt="Total Revenue"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+    },
+    //  {
+    //   title: "Total Joining Bonus",
+    //   value: statistics.revenue_all_time,
+    //   icon: (
+    //     <img
+    //       src={wallet}
+    //       alt="Total Joining Bonus"
+    //       style={{ width: "24px", height: "24px" }}
+    //     />
+    //   ),
+    //   iconBg: "#FFDB45",
+    //   outerBg: "#FFF8DA",
+    // },
+     {
+      title: "Total Admin Coins",
+      value: adminPurchase.total_coins_spent,
+      icon: (
+        <img
+          src={wallet}
+          alt="Total Revenue"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
+      iconBg: "#FFDB45",
+      outerBg: "#FFF8DA",
+    },
+
   ];
 
 // In your Dashboard component where you handle the navigation:
@@ -547,6 +597,9 @@ const handleCardClick = (metric) => {
     navigate('/account', { state: { showAdminOnly: true } });
   } else if (metric.title === "On Call") {
     navigate('/activities');
+  }
+  else if (metric.title === "Total Calls") {
+    navigate('/allcalls');
   }
 };
 
@@ -941,7 +994,6 @@ const handleCardClick = (metric) => {
                       boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                     }}
                   >
-                    <span>{100}</span>
                   </div>
                 </div>
               </Col>

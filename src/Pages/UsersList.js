@@ -433,33 +433,77 @@ const UsersList = () => {
       </Table>
 
       {/* Pagination */}
-      <Pagination className="justify-content-center mt-4">
-        <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
-        <Pagination.Prev onClick={() => setPage(page - 1)} disabled={page === 1} />
-        {[...Array(totalPages)].map((_, index) => {
-          const pageNumber = index + 1;
-          return (
-            <Pagination.Item
-              key={pageNumber}
-              active={page === pageNumber}
-              onClick={() => handlePageChange(pageNumber)}
-              style={{
-                backgroundColor: page === pageNumber ? '#5065F6' : 'transparent',
-                color: page === pageNumber ? 'white' : '#000',
-                borderRadius: '8px',
-                boxShadow: page === pageNumber
-                  ? '0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642'
-                  : 'none',
-                transition: 'background-color 0.3s ease-in-out, color 0.3s ease-in-out',
-              }}
-            >
-              {pageNumber}
-            </Pagination.Item>
-          );
-        })}
-        <Pagination.Next onClick={() => setPage(page + 1)} disabled={page === totalPages} />
-        <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
-      </Pagination>
+    {/* Pagination */}
+<Pagination className="justify-content-center mt-4">
+  <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
+  <Pagination.Prev onClick={() => setPage(page - 1)} disabled={page === 1} />
+  
+  {/* Always show first page */}
+  <Pagination.Item
+    active={page === 1}
+    onClick={() => handlePageChange(1)}
+    style={{
+      backgroundColor: page === 1 ? '#5065F6' : 'transparent',
+      color: page === 1 ? 'white' : '#000',
+      borderRadius: '8px',
+      boxShadow: page === 1 ? '0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642' : 'none',
+    }}
+  >
+    1
+  </Pagination.Item>
+
+  {/* Show ellipsis if current page is far from start */}
+  {page > 4 && <Pagination.Ellipsis disabled />}
+
+  {/* Show pages around current page */}
+  {[...Array(totalPages)].map((_, index) => {
+    const pageNumber = index + 1;
+    // Only show page if it's within 2 of current page, but not first or last
+    if (pageNumber > 1 && pageNumber < totalPages && 
+        (pageNumber >= page - 2 && pageNumber <= page + 2)) {
+      return (
+        <Pagination.Item
+          key={pageNumber}
+          active={page === pageNumber}
+          onClick={() => handlePageChange(pageNumber)}
+          style={{
+            backgroundColor: page === pageNumber ? '#5065F6' : 'transparent',
+            color: page === pageNumber ? 'white' : '#000',
+            borderRadius: '8px',
+            boxShadow: page === pageNumber ? 
+              '0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642' : 'none',
+          }}
+        >
+          {pageNumber}
+        </Pagination.Item>
+      );
+    }
+    return null;
+  })}
+
+  {/* Show ellipsis if current page is far from end */}
+  {page < totalPages - 3 && <Pagination.Ellipsis disabled />}
+
+  {/* Always show last page if there's more than 1 page */}
+  {totalPages > 1 && (
+    <Pagination.Item
+      active={page === totalPages}
+      onClick={() => handlePageChange(totalPages)}
+      style={{
+        backgroundColor: page === totalPages ? '#5065F6' : 'transparent',
+        color: page === totalPages ? 'white' : '#000',
+        borderRadius: '8px',
+        boxShadow: page === totalPages ? 
+          '0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642' : 'none',
+      }}
+    >
+      {totalPages}
+    </Pagination.Item>
+  )}
+
+  <Pagination.Next onClick={() => setPage(page + 1)} disabled={page === totalPages} />
+  <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
+</Pagination>
 
       {/* Enhanced Modal with Filter and Sort Options */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="sm">

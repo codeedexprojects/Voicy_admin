@@ -31,7 +31,7 @@ function Activities() {
   // Toast states
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [toastVariant, setToastVariant] = useState("success"); // 'success', 'danger', 'warning', 'info'
+  const [toastVariant, setToastVariant] = useState("success"); 
 
   const client = AgoraRTC.createClient({
     mode: "live",
@@ -232,42 +232,22 @@ function Activities() {
     }
   };
 
-  const handleModalClose = async () => {
-    try {
-      setShowModal(false);
+const handleModalClose = async () => {
+  try {
+    setShowModal(false);
+    
+    setChannelInfo(null);
+    showToastMessage("Call monitoring controls closed - audio continues", "info");
+  } catch (error) {
+    showToastMessage(`Error during modal close: ${error.message}`, "danger");
+  }
+};
 
-      // Stop and reset all remote audio tracks
-      if (remoteAudioTracks && remoteAudioTracks.size > 0) {
-        remoteAudioTracks.forEach((track, uid) => {
-          track.stop(); // Stop each individual track
-        });
-        setRemoteAudioTracks(new Map()); // Clear the tracks
-        setIsAudioPlaying(false);
-      }
-
-      // Ensure the client leaves the channel
-      if (client && client.connectionState === "CONNECTED") {
-        await client.leave();
-      }
-
-      // Clean up event listeners to avoid duplication
-      client.removeAllListeners();
-
-      // Reset channel info
-      setChannelInfo(null);
-      showToastMessage("Disconnected from the call", "info");
-    } catch (error) {
-      showToastMessage(`Error during cleanup: ${error.message}`, "danger");
-    }
-  };
-
-  // Handle terminate call button click
   const handleTerminateCallClick = (callItem) => {
     setSelectedCallForTermination(callItem);
     setShowTerminateModal(true);
   };
 
-  // Handle terminate call confirmation
   const handleTerminateCall = async () => {
     if (!selectedCallForTermination) {
       showToastMessage("No call selected for termination", "warning");
@@ -525,14 +505,7 @@ function Activities() {
               >
                 {isAudioPlaying ? "Stop All Audio" : "Play All Audio"}
               </Button>
-              <Button
-                variant="outline-primary"
-                onClick={() => {
-                  // Toggle mute for specific users if needed
-                }}
-              >
-                Mute Controls
-              </Button>
+             
             </div>
           )}
         </Modal.Body>
@@ -614,4 +587,4 @@ function Activities() {
   );
 }
 
-export default Activities;
+export default Activities;  
