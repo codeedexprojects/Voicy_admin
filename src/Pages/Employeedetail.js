@@ -98,8 +98,8 @@ function EmployeeDetails() {
         page,
         ITEMS_PER_PAGE
       );
-      console.log("callhistiryexecutive",callHistoryData);
-      
+      console.log("callhistiryexecutive", callHistoryData);
+
       setCallHistory(callHistoryData || []);
 
       if (!callHistoryData || callHistoryData.length === 0) {
@@ -165,23 +165,23 @@ function EmployeeDetails() {
   // const handlePeriodChange = (period) => {
   //   setSelectedPeriod(period);
   // };
-   useEffect(() => {
-  const fetchBlockedUser = async () => {
-    try {
-      const response = await blockedUsers(id); 
-      // console.log("blocked users", response);
-      
-      setBlockedUser(response?.[0] || null);
-    } catch (error) {
-      console.error("Error fetching blocked user details:", error);
-      setBlockedUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchBlockedUser = async () => {
+      try {
+        const response = await blockedUsers(id);
+        // console.log("blocked users", response);
 
-  fetchBlockedUser();
-}, [id]);
+        setBlockedUser(response?.[0] || null);
+      } catch (error) {
+        console.error("Error fetching blocked user details:", error);
+        setBlockedUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlockedUser();
+  }, [id]);
 
   const [filteredData, setFilteredData] = useState([]);
 
@@ -191,7 +191,7 @@ function EmployeeDetails() {
     page * ITEMS_PER_PAGE
   );
   // console.log("execall",currentData);
-  
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
@@ -782,17 +782,16 @@ function EmployeeDetails() {
                 }
               />
             </div>
-<div className="my-3">
+            <div className="my-3">
               <label className="formHeading">Account Number</label>
               <MDBInput
                 id="account_number"
                 type="text"
-                
                 onChange={handleChange}
                 name="account_number"
-               
                 value={
-                  user.account_number === null || user.account_number === undefined
+                  user.account_number === null ||
+                  user.account_number === undefined
                     ? ""
                     : user.account_number
                 }
@@ -888,27 +887,30 @@ function EmployeeDetails() {
               />
             </div>
             <div className="my-3">
-                          <label className="formHeading">IFSC Code</label>
-                         <MDBInput
-                            id="ifsc_code"
-                            type="text"
-                           
-                            onChange={handleChange}
-                            name="ifsc_code"
-                            value={
-                              user.ifsc_code === null || user.ifsc_code === undefined
-                                ? ""
-                                : user.ifsc_code
-                            }
-                          />
-                        </div>
-             <div className="my-3">
+              <label className="formHeading">IFSC Code</label>
+              <MDBInput
+                id="ifsc_code"
+                type="text"
+                onChange={handleChange}
+                name="ifsc_code"
+                value={
+                  user.ifsc_code === null || user.ifsc_code === undefined
+                    ? ""
+                    : user.ifsc_code
+                }
+              />
+            </div>
+            <div className="my-3">
               <label className="formHeading">EXECUTIVE ID</label>
               <MDBInput
                 id="form1"
                 type="text"
                 disabled
-                value={user.executive_id === null || user.executive_id === undefined ? "" : user.executive_id}
+                value={
+                  user.executive_id === null || user.executive_id === undefined
+                    ? ""
+                    : user.executive_id
+                }
               />
             </div>
           </div>
@@ -1054,13 +1056,12 @@ function EmployeeDetails() {
                   <td>{item.call_history?.executive?.name || "N/A"}</td>
                   <td>{item.call_history?.user?.user_id || "N/A"}</td>
                   <td>{item.call_history?.call_start_time || "N/A"}</td>
-                  <td>{item.formatted_duration || "N/A"}</td>       
+                  <td>{item.formatted_duration || "N/A"}</td>
                   <td>{item.call_history?.call_end_time || "N/A"}</td>
                   <td>{item.call_history?.status || "N/A"}</td>
                 </tr>
               ))
             ) : (
-              
               <tr>
                 <td colSpan="5" className="text-center">
                   No Call History Found
@@ -1079,30 +1080,83 @@ function EmployeeDetails() {
             onClick={() => handlePageChange(page - 1)}
             disabled={page === 1}
           />
+
+          {/* Always show first page */}
+          <Pagination.Item
+            active={page === 1}
+            onClick={() => handlePageChange(1)}
+            style={{
+              backgroundColor: page === 1 ? "#5065F6" : "transparent",
+              color: page === 1 ? "white" : "#000",
+              borderRadius: "8px",
+              boxShadow:
+                page === 1
+                  ? "0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642"
+                  : "none",
+            }}
+          >
+            1
+          </Pagination.Item>
+
+          {/* Show ellipsis if needed */}
+          {page > 3 && <Pagination.Ellipsis />}
+
+          {/* Show pages around current page */}
           {[...Array(totalPages)].map((_, index) => {
             const pageNumber = index + 1;
-            return (
-              <Pagination.Item
-                key={pageNumber}
-                active={page === pageNumber}
-                onClick={() => handlePageChange(pageNumber)}
-                style={{
-                  backgroundColor:
-                    page === pageNumber ? "#5065F6" : "transparent",
-                  color: page === pageNumber ? "white" : "#000",
-                  borderRadius: "8px",
-                  boxShadow:
-                    page === pageNumber
-                      ? "0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642"
-                      : "none",
-                  transition:
-                    "background-color 0.3s ease-in-out, color 0.3s ease-in-out",
-                }}
-              >
-                {pageNumber}
-              </Pagination.Item>
-            );
+
+            // Skip if it's the first page (already shown) or if it's not in the visible range
+            if (pageNumber === 1 || pageNumber === totalPages) return null;
+
+            // Show pages near current page (within 1 page distance)
+            if (Math.abs(pageNumber - page) <= 1) {
+              return (
+                <Pagination.Item
+                  key={pageNumber}
+                  active={page === pageNumber}
+                  onClick={() => handlePageChange(pageNumber)}
+                  style={{
+                    backgroundColor:
+                      page === pageNumber ? "#5065F6" : "transparent",
+                    color: page === pageNumber ? "white" : "#000",
+                    borderRadius: "8px",
+                    boxShadow:
+                      page === pageNumber
+                        ? "0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642"
+                        : "none",
+                  }}
+                >
+                  {pageNumber}
+                </Pagination.Item>
+              );
+            }
+
+            return null;
           })}
+
+          {/* Show ellipsis if needed */}
+          {page < totalPages - 2 && <Pagination.Ellipsis />}
+
+          {/* Always show last page if there's more than 1 page */}
+          {totalPages > 1 && (
+            <Pagination.Item
+              active={page === totalPages}
+              onClick={() => handlePageChange(totalPages)}
+              style={{
+                backgroundColor:
+                  page === totalPages ? "#5065F6" : "transparent",
+                color: page === totalPages ? "white" : "#000",
+                borderRadius: "8px",
+                boxShadow:
+                  page === totalPages
+                    ? "0px -1px 1px 0px #00000026 inset, 0px 2px 6px 0px #5065F642"
+                    : "none",
+              }}
+            >
+              {totalPages}
+            </Pagination.Item>
+          )}
+
           <Pagination.Next
             onClick={() => handlePageChange(page + 1)}
             disabled={page === totalPages}
@@ -1117,7 +1171,7 @@ function EmployeeDetails() {
           className="container mt-2 d-flex justify-content-center align-items-center"
           style={{ minHeight: "60vh" }}
         >
-           <div className="card border-0 shadow" style={{ width: "360px" }}>
+          <div className="card border-0 shadow" style={{ width: "360px" }}>
             {blockedUser ? (
               <>
                 <div className="card-header bg-light text-center">
